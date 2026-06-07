@@ -1,0 +1,121 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+  animation: fadeIn 200ms ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  outline: none;
+}
+
+fieldset {
+  border: none;
+}
+
+// Shared button styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: opacity var(--transition), transform var(--transition);
+
+  &:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &--play {
+    background: var(--color-yellow);
+    color: #1a1a1a;
+    padding: 14px 28px;
+    font-size: 1.1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  &--start {
+    background: var(--color-yellow);
+    color: #1a1a1a;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    border-radius: var(--radius-md);
+  }
+
+  &--back {
+    background: transparent;
+    color: inherit;
+    border: 2px solid currentColor;
+    padding: 12px 28px;
+    font-size: 1rem;
+    border-radius: var(--radius-md);
+    margin-top: 24px;
+  }
+
+  &--secondary {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: var(--radius-md);
+  }
+
+  &--danger {
+    background: transparent;
+    color: #e53935;
+    border: 1.5px solid #e53935;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    border-radius: var(--radius-md);
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  &__arrow {
+    font-size: 1.1rem;
+  }
+}
+
+// Shared dot for player colors
+.scorebar__dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--blue   { background: var(--color-blue); }
+  &--orange { background: var(--color-orange); }
+}

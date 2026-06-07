@@ -1,0 +1,17 @@
+:root {
+  --color-blue:   #3B82F6;
+  --color-orange: #F97316;
+  --color-yellow: #EAB308;
+  --color-white:  #ffffff;
+  --color-dark:   #2A2D30;
+
+  --font-base: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+
+  --transition: 300ms ease-in-out;
+  --card-transition: 400ms ease-in-out;
+}
