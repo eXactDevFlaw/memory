@@ -60,6 +60,13 @@
     font-size: 1.1rem;
   }
 
+  &__radio-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
   &__radio-label {
     display: flex;
     align-items: center;

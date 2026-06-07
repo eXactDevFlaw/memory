@@ -12,7 +12,7 @@ export interface ThemeConfig {
   icons: CardIcon[];
 }
 
-export const themes: Record<ThemeName, ThemeConfig> = {
+export const THEMES: Record<ThemeName, ThemeConfig> = {
   'code-vibes': {
     name: 'Code Vibes',
     bgColor: '#2A2D30',
@@ -135,20 +135,22 @@ export const themes: Record<ThemeName, ThemeConfig> = {
   },
 };
 
+/** Returns the config for a given theme name. */
 export function getTheme(name: ThemeName): ThemeConfig {
-  return themes[name];
+  return THEMES[name];
 }
 
-// Returns a preview of the theme as 4 colored squares (for settings page)
+/** Returns a small themed card-grid HTML snippet for the settings preview. */
 export function getThemePreviewHtml(name: ThemeName): string {
-  const t = themes[name];
-  const previewCards = t.icons.slice(0, 4);
-  const cardsHtml = previewCards.map(icon => {
+  const theme = THEMES[name];
+  const previewIcons = theme.icons.slice(0, 4);
+
+  const cardsHtml = previewIcons.map(icon => {
     const iconHtml = icon.type === 'badge'
       ? `<span class="preview-card__badge" style="background:${icon.badgeBg};color:${icon.badgeColor}">${icon.value}</span>`
       : `<span class="preview-card__emoji">${icon.value}</span>`;
-    return `<div class="preview-card" style="background:${t.cardBackColor}">${iconHtml}</div>`;
+    return `<div class="preview-card" style="background:${theme.cardBackColor}">${iconHtml}</div>`;
   }).join('');
 
-  return `<div class="theme-preview" style="background:${t.bgColor}">${cardsHtml}</div>`;
+  return `<div class="theme-preview" style="background:${theme.bgColor}">${cardsHtml}</div>`;
 }
