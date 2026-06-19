@@ -4,7 +4,7 @@ export type BoardSize = 16 | 24 | 36;
 export type GameScreen = 'home' | 'settings' | 'game' | 'gameover';
 
 export interface CardIcon {
-  type: 'emoji' | 'badge';
+  type: 'emoji' | 'badge' | 'image';
   value: string;
   badgeBg?: string;
   badgeColor?: string;

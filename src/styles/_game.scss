@@ -9,6 +9,8 @@
 // ── Score bar ────────────────────────────────
 .scorebar {
   width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -97,10 +99,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-
-    &--hidden {
-      // background set inline via JS (theme color)
-    }
+    border: var(--card-border-width, 2px) solid var(--card-border-color, transparent);
 
     &--revealed {
       background: #ffffff;
@@ -109,18 +108,10 @@
     }
   }
 
-  // Subtle grid pattern on card back
-  &__face-pattern {
-    position: absolute;
-    inset: 0;
-    background-image: repeating-linear-gradient(
-      45deg,
-      rgba(255,255,255,0.04) 0px,
-      rgba(255,255,255,0.04) 1px,
-      transparent 1px,
-      transparent 10px
-    );
-    border-radius: inherit;
+  &__back-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   &.is-flipped .card__inner {
@@ -143,6 +134,36 @@
     border-radius: 5px;
     letter-spacing: 0.03em;
   }
+
+  &__image {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+  }
+}
+
+// ── Per-theme card borders ────────────────────
+.game[data-theme="code-vibes"] .card__face {
+  --card-border-width: 2px;
+  --card-border-color: #45B7AC;
+  border-style: dashed;
+}
+
+.game[data-theme="gaming"] .card__face {
+  --card-border-width: 3px;
+  --card-border-color: #E91E8C;
+  box-shadow: 0 0 10px rgba(233, 30, 140, 0.4);
+}
+
+.game[data-theme="da-projects"] .card__face {
+  --card-border-width: 2px;
+  --card-border-color: #2B7FBF;
+}
+
+.game[data-theme="food"] .card__face {
+  --card-border-width: 3px;
+  --card-border-color: #F5921B;
+  border-style: dotted;
 }
 
 // ── Exit modal ───────────────────────────────

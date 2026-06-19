@@ -103,14 +103,16 @@ export function renderSettings(): string {
   const { settings } = getState();
   return `
     <main class="settings">
-      <h1 class="settings__title">Settings</h1>
-      <div class="settings__body">
-        ${renderForm(settings)}
-        <div class="settings__preview-area" id="settings-preview">
-          ${getThemePreviewHtml(settings.theme)}
+      <div class="settings__inner">
+        <h1 class="settings__title">Settings</h1>
+        <div class="settings__body">
+          ${renderForm(settings)}
+          <div class="settings__preview-area" id="settings-preview">
+            ${getThemePreviewHtml(settings.theme)}
+          </div>
         </div>
+        ${renderBar(settings)}
       </div>
-      ${renderBar(settings)}
     </main>
   `;
 }

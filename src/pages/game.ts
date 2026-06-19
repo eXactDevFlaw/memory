@@ -27,16 +27,19 @@ function buildCards(boardSize: number, theme: ReturnType<typeof getTheme>): Card
   return shuffle(pairs);
 }
 
-/** Returns the HTML for a card icon (badge or emoji). */
+/** Returns the HTML for a card icon (badge, emoji or image). */
 function renderIcon(icon: CardIcon): string {
   if (icon.type === 'badge') {
     return `<span class="card__badge" style="background:${icon.badgeBg};color:${icon.badgeColor}">${icon.value}</span>`;
+  }
+  if (icon.type === 'image') {
+    return `<img class="card__image" src="${icon.value}" alt="" />`;
   }
   return `<span class="card__emoji">${icon.value}</span>`;
 }
 
 /** Returns the HTML for a single memory card. */
-function renderCard(card: Card, index: number, cardBackColor: string): string {
+function renderCard(card: Card, index: number, backIcon: string): string {
   const flippedClass = card.isFlipped || card.isMatched ? 'is-flipped' : '';
   const matchedClass = card.isMatched ? 'is-matched' : '';
   return `
@@ -47,8 +50,8 @@ function renderCard(card: Card, index: number, cardBackColor: string): string {
       ${card.isMatched ? 'disabled' : ''}
     >
       <div class="card__inner">
-        <div class="card__face card__face--hidden" style="background:${cardBackColor}">
-          <div class="card__face-pattern"></div>
+        <div class="card__face card__face--hidden">
+          <img class="card__back-image" src="${backIcon}" alt="" />
         </div>
         <div class="card__face card__face--revealed">
           ${renderIcon(card.icon)}
@@ -87,8 +90,8 @@ function renderScorebar(
 }
 
 /** Returns the HTML for the card grid. */
-function renderField(cards: Card[], cols: number, cardBackColor: string): string {
-  const cardsHtml = cards.map((card, i) => renderCard(card, i, cardBackColor)).join('');
+function renderField(cards: Card[], cols: number, backIcon: string): string {
+  const cardsHtml = cards.map((card, i) => renderCard(card, i, backIcon)).join('');
   return `
     <section
       class="field"
@@ -128,9 +131,9 @@ export function renderGame(): string {
 
   const { cards, scores, currentPlayer } = getState();
   return `
-    <div class="game" style="background:${theme.bgColor}">
+    <div class="game" data-theme="${state.settings.theme}" style="background:${theme.bgColor}">
       ${renderScorebar(scores, currentPlayer, theme)}
-      ${renderField(cards, cols, theme.cardBackColor)}
+      ${renderField(cards, cols, theme.backIcon)}
       ${renderExitModal()}
     </div>
   `;

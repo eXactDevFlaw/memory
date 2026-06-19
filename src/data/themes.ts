@@ -9,7 +9,18 @@ export interface ThemeConfig {
   scoreBarBg: string;
   exitBtnBorder: string;
   gameoverBg: string;
+  backIcon: string;
   icons: CardIcon[];
+}
+
+/** Returns the public-asset URL for an icon, respecting Vite's configured base path. */
+function iconPath(folder: string, file: string): string {
+  return `${import.meta.env.BASE_URL}icons/${folder}/${file}.svg`;
+}
+
+/** Builds the 18 image-based card icons for a theme from a folder + filename list. */
+function buildImageIcons(folder: string, files: string[]): CardIcon[] {
+  return files.map(file => ({ type: 'image', value: iconPath(folder, file) }));
 }
 
 export const THEMES: Record<ThemeName, ThemeConfig> = {
@@ -22,26 +33,8 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#2A2D30',
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#2A2D30',
-    icons: [
-      { type: 'badge', value: 'Git',  badgeBg: '#F05032', badgeColor: '#fff' },
-      { type: 'badge', value: 'TS',   badgeBg: '#3178C6', badgeColor: '#fff' },
-      { type: 'badge', value: 'JS',   badgeBg: '#F7DF1E', badgeColor: '#000' },
-      { type: 'badge', value: 'HTML', badgeBg: '#E34F26', badgeColor: '#fff' },
-      { type: 'badge', value: 'CSS',  badgeBg: '#1572B6', badgeColor: '#fff' },
-      { type: 'badge', value: 'Py',   badgeBg: '#3776AB', badgeColor: '#fff' },
-      { type: 'badge', value: 'Vue',  badgeBg: '#4FC08D', badgeColor: '#fff' },
-      { type: 'badge', value: '⚛',   badgeBg: '#61DAFB', badgeColor: '#000' },
-      { type: 'badge', value: 'Node', badgeBg: '#339933', badgeColor: '#fff' },
-      { type: 'badge', value: 'Sass', badgeBg: '#CC6699', badgeColor: '#fff' },
-      { type: 'badge', value: '🔥',   badgeBg: '#FFA000', badgeColor: '#fff' },
-      { type: 'badge', value: 'ng',   badgeBg: '#DD0031', badgeColor: '#fff' },
-      { type: 'badge', value: '>_',   badgeBg: '#1E1E1E', badgeColor: '#0f0' },
-      { type: 'badge', value: 'GH',   badgeBg: '#24292E', badgeColor: '#fff' },
-      { type: 'badge', value: 'BS',   badgeBg: '#7952B3', badgeColor: '#fff' },
-      { type: 'badge', value: 'Dj',   badgeBg: '#0C4B33', badgeColor: '#fff' },
-      { type: 'badge', value: '🐳',   badgeBg: '#2496ED', badgeColor: '#fff' },
-      { type: 'badge', value: 'K8s',  badgeBg: '#326CE5', badgeColor: '#fff' },
-    ],
+    backIcon: iconPath('code-vibes', 'back'),
+    icons: buildImageIcons('code-vibes', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
   'gaming': {
     name: 'Gaming',
@@ -52,26 +45,8 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#141e36',
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#1B2744',
-    icons: [
-      { type: 'emoji', value: '👾' },
-      { type: 'emoji', value: '🎮' },
-      { type: 'emoji', value: '🕹️' },
-      { type: 'emoji', value: '🎯' },
-      { type: 'emoji', value: '🏆' },
-      { type: 'emoji', value: '🎲' },
-      { type: 'emoji', value: '👑' },
-      { type: 'emoji', value: '⚔️' },
-      { type: 'emoji', value: '🛡️' },
-      { type: 'emoji', value: '🧩' },
-      { type: 'emoji', value: '💎' },
-      { type: 'emoji', value: '🔮' },
-      { type: 'emoji', value: '🌟' },
-      { type: 'emoji', value: '🃏' },
-      { type: 'emoji', value: '🎠' },
-      { type: 'emoji', value: '🎪' },
-      { type: 'emoji', value: '🗡️' },
-      { type: 'emoji', value: '💣' },
-    ],
+    backIcon: iconPath('gaming', 'back'),
+    icons: buildImageIcons('gaming', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
   'da-projects': {
     name: 'DA Projects',
@@ -82,26 +57,8 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#142d48',
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#1B3A5C',
-    icons: [
-      { type: 'emoji', value: '🍜' },
-      { type: 'emoji', value: '🔥' },
-      { type: 'emoji', value: '🌸' },
-      { type: 'emoji', value: '☁️' },
-      { type: 'emoji', value: '🧁' },
-      { type: 'emoji', value: '🎯' },
-      { type: 'emoji', value: '🌐' },
-      { type: 'emoji', value: '😊' },
-      { type: 'emoji', value: '▶️' },
-      { type: 'emoji', value: '📊' },
-      { type: 'emoji', value: '🌿' },
-      { type: 'emoji', value: '📱' },
-      { type: 'emoji', value: '🥦' },
-      { type: 'emoji', value: '👤' },
-      { type: 'emoji', value: '📄' },
-      { type: 'emoji', value: '⭐' },
-      { type: 'emoji', value: '🚀' },
-      { type: 'emoji', value: '🔬' },
-    ],
+    backIcon: iconPath('da-projects', 'back'),
+    icons: buildImageIcons('da-projects', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
   'food': {
     name: 'Foods',
@@ -112,26 +69,8 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#ede8e0',
     exitBtnBorder: 'rgba(0,0,0,0.2)',
     gameoverBg: '#F5921B',
-    icons: [
-      { type: 'emoji', value: '🍟' },
-      { type: 'emoji', value: '🌮' },
-      { type: 'emoji', value: '🌭' },
-      { type: 'emoji', value: '🍣' },
-      { type: 'emoji', value: '🍔' },
-      { type: 'emoji', value: '🍕' },
-      { type: 'emoji', value: '🍦' },
-      { type: 'emoji', value: '🧁' },
-      { type: 'emoji', value: '🍩' },
-      { type: 'emoji', value: '🍫' },
-      { type: 'emoji', value: '🍰' },
-      { type: 'emoji', value: '🍪' },
-      { type: 'emoji', value: '🍎' },
-      { type: 'emoji', value: '🍓' },
-      { type: 'emoji', value: '🥑' },
-      { type: 'emoji', value: '🍋' },
-      { type: 'emoji', value: '🍇' },
-      { type: 'emoji', value: '🫐' },
-    ],
+    backIcon: iconPath('food', 'back'),
+    icons: buildImageIcons('food', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
 };
 
@@ -146,9 +85,14 @@ export function getThemePreviewHtml(name: ThemeName): string {
   const previewIcons = theme.icons.slice(0, 4);
 
   const cardsHtml = previewIcons.map(icon => {
-    const iconHtml = icon.type === 'badge'
-      ? `<span class="preview-card__badge" style="background:${icon.badgeBg};color:${icon.badgeColor}">${icon.value}</span>`
-      : `<span class="preview-card__emoji">${icon.value}</span>`;
+    let iconHtml: string;
+    if (icon.type === 'badge') {
+      iconHtml = `<span class="preview-card__badge" style="background:${icon.badgeBg};color:${icon.badgeColor}">${icon.value}</span>`;
+    } else if (icon.type === 'image') {
+      iconHtml = `<img class="preview-card__image" src="${icon.value}" alt="" />`;
+    } else {
+      iconHtml = `<span class="preview-card__emoji">${icon.value}</span>`;
+    }
     return `<div class="preview-card" style="background:${theme.cardBackColor}">${iconHtml}</div>`;
   }).join('');
 
