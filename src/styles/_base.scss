@@ -55,14 +55,6 @@ fieldset {
     transform: translateY(0);
   }
 
-  &--play {
-    background: var(--color-yellow);
-    color: #1a1a1a;
-    padding: 14px 28px;
-    font-size: 1.1rem;
-    border-radius: var(--radius-lg);
-  }
-
   &--start {
     background: var(--color-yellow);
     color: #1a1a1a;
