@@ -52,38 +52,14 @@
 
 .play-btn {
   display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--color-yellow);
-  color: #1a1a1a;
+  background: none;
   border: none;
-  border-radius: var(--radius-lg);
-  padding: 14px 32px;
-  font-size: 1.1rem;
-  font-weight: 700;
+  padding: 0;
   cursor: pointer;
-  transition: transform var(--transition);
-
-  &:hover {
-    transform: scale(1.06);
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
 
   &__icon {
-    width: 28px;
-    height: 28px;
-    transition: transform 600ms ease-in-out;
-  }
-
-  &:hover &__icon {
-    transform: rotate(360deg);
-  }
-
-  &__arrow {
-    font-size: 1.2rem;
+    height: 98px;
+    width: auto;
   }
 }
 

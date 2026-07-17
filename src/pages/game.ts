@@ -4,6 +4,22 @@ import { render } from '../main';
 import type { Card, CardIcon } from '../types/index';
 
 const GRID_COLS: Record<number, number> = { 16: 4, 24: 6, 36: 6 };
+const SCORE_TAG_PATH = `${import.meta.env.BASE_URL}ui/label.svg`;
+
+/** Returns the mask-colored tag icon used next to player scores. */
+function renderScoreTag(player: 'blue' | 'orange'): string {
+  return `<span class="scorebar__tag scorebar__tag--${player}" style="--mask-src:url('${SCORE_TAG_PATH}')" aria-hidden="true"></span>`;
+}
+
+/** Returns a single player's score entry (colored tag + colored label) for the shared score box. */
+function renderScoreEntry(player: 'blue' | 'orange', label: string, score: number): string {
+  return `
+    <div class="scorebar__score-entry">
+      ${renderScoreTag(player)}
+      <span class="scorebar__score-text scorebar__score-text--${player}">${label} ${score}</span>
+    </div>
+  `;
+}
 
 /** Shuffles an array in-place using the Fisher-Yates algorithm. */
 function shuffle<T>(array: T[]): T[] {
@@ -69,15 +85,13 @@ function renderScorebar(
 ): string {
   return `
     <header class="scorebar" style="background:${theme.scoreBarBg}">
-      <div class="scorebar__scores">
-        <span class="scorebar__dot scorebar__dot--blue"></span>
-        <span class="scorebar__score scorebar__score--blue" style="color:${theme.textColor}">Blue ${scores.blue}</span>
-        <span class="scorebar__dot scorebar__dot--orange"></span>
-        <span class="scorebar__score scorebar__score--orange" style="color:${theme.textColor}">Orange ${scores.orange}</span>
+      <div class="scorebar__scores" style="background:${theme.exitBtnBorder}">
+        ${renderScoreEntry('blue', 'Blue', scores.blue)}
+        ${renderScoreEntry('orange', 'Orange', scores.orange)}
       </div>
       <p class="scorebar__current" style="color:${theme.textColor}">
         Current player:
-        <span class="scorebar__dot scorebar__dot--${currentPlayer}"></span>
+        ${renderScoreTag(currentPlayer)}
       </p>
       <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${theme.exitBtnBorder};color:${theme.textColor}">
         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
@@ -151,14 +165,14 @@ function updateCardEl(index: number, card: Card): void {
 /** Refreshes the scorebar text and current-player indicator in the DOM. */
 function updateScorebar(): void {
   const state    = getState();
-  const blueEl   = document.querySelector('.scorebar__score--blue');
-  const orangeEl = document.querySelector('.scorebar__score--orange');
+  const blueEl   = document.querySelector('.scorebar__score-text--blue');
+  const orangeEl = document.querySelector('.scorebar__score-text--orange');
   const curEl    = document.querySelector('.scorebar__current');
 
   if (blueEl)   blueEl.textContent   = `Blue ${state.scores.blue}`;
   if (orangeEl) orangeEl.textContent = `Orange ${state.scores.orange}`;
   if (curEl) {
-    curEl.innerHTML = `Current player: <span class="scorebar__dot scorebar__dot--${state.currentPlayer}"></span>`;
+    curEl.innerHTML = `Current player: ${renderScoreTag(state.currentPlayer)}`;
   }
 }
 

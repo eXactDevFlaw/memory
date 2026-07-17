@@ -16,16 +16,27 @@
     font-size: 2.2rem;
     font-weight: 800;
     color: #1a1a1a;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
     position: relative;
     display: inline-block;
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 10px;
+      height: 10px;
+      background: var(--color-yellow);
+      transform: rotate(45deg);
+    }
 
     &::after {
       content: '';
       position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 60px;
+      bottom: -5px;
+      left: 14px;
+      width: 100px;
       height: 4px;
       background: var(--color-yellow);
       border-radius: 2px;
@@ -64,7 +75,9 @@
   }
 
   &__group-icon {
-    font-size: 1.1rem;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
   }
 
   &__radio-list {
@@ -80,11 +93,18 @@
     gap: 12px;
     cursor: pointer;
     font-size: 0.95rem;
+    font-weight: 500;
     color: #444;
     padding: 2px 0;
+    transition: color var(--transition), font-weight var(--transition);
 
     &:hover .settings__radio-custom {
       border-color: #999;
+    }
+
+    &:has(.settings__radio-input:checked) {
+      color: #1a1a1a;
+      font-weight: 700;
     }
   }
 
@@ -123,11 +143,45 @@
     }
   }
 
+  &__radio-flourish {
+    display: flex;
+    align-items: center;
+    width: 0;
+    opacity: 0;
+    transition: width var(--transition), opacity var(--transition);
+
+    &::before {
+      content: '';
+      width: 100%;
+      height: 2px;
+      background: var(--color-yellow);
+      flex-shrink: 0;
+    }
+
+    &::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--color-yellow);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+      margin-left: -1px;
+    }
+  }
+
+  &__radio-input:checked ~ &__radio-flourish {
+    width: 48px;
+    opacity: 1;
+  }
+
   &__preview-area {
     flex: 0 0 300px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  }
+
+  &__preview-img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   &__bar {
@@ -152,43 +206,10 @@
   }
 
   &__bar-sep {
-    color: #ccc;
-    font-size: 0.9rem;
+    width: 3px;
+    height: 20px;
+    background: var(--color-yellow);
+    transform: skewX(-20deg);
+    border-radius: 1px;
   }
-}
-
-// Theme preview mini grid (generated in themes.ts)
-.theme-preview {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  padding: 24px;
-  aspect-ratio: 4/3;
-  transition: background var(--transition);
-}
-
-.preview-card {
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  transition: background var(--transition);
-}
-
-.preview-card__badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 6px;
-  border-radius: 4px;
-}
-
-.preview-card__emoji {
-  font-size: 1.6rem;
-}
-
-.preview-card__image {
-  width: 55%;
-  height: 55%;
-  object-fit: contain;
 }

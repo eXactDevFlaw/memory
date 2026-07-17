@@ -3,6 +3,10 @@ import { getThemePreviewHtml, THEMES } from '../data/themes';
 import { render } from '../main';
 import type { ThemeName, PlayerColor, BoardSize, GameSettings } from '../types/index';
 
+const ICON_THEME_PATH     = `${import.meta.env.BASE_URL}ui/icon-theme.svg`;
+const ICON_PLAYER_PATH    = `${import.meta.env.BASE_URL}ui/icon-player.svg`;
+const ICON_BOARDSIZE_PATH = `${import.meta.env.BASE_URL}ui/icon-boardsize.svg`;
+
 const THEME_OPTIONS: { value: ThemeName; label: string }[] = [
   { value: 'code-vibes',  label: 'Code vibes theme' },
   { value: 'gaming',      label: 'Gaming theme' },
@@ -39,6 +43,7 @@ function renderRadioGroup<T extends string | number>(
         >
         <span class="settings__radio-custom"></span>
         ${opt.label}
+        <span class="settings__radio-flourish" aria-hidden="true"></span>
       </label>
     </li>
   `).join('');
@@ -50,7 +55,7 @@ function renderForm(settings: GameSettings): string {
     <form class="settings__form">
       <fieldset class="settings__group">
         <legend class="settings__group-legend">
-          <span class="settings__group-icon" aria-hidden="true">🎮</span>
+          <img class="settings__group-icon" src="${ICON_THEME_PATH}" alt="" aria-hidden="true" />
           Game themes
         </legend>
         <ul class="settings__radio-list">
@@ -59,7 +64,7 @@ function renderForm(settings: GameSettings): string {
       </fieldset>
       <fieldset class="settings__group">
         <legend class="settings__group-legend">
-          <span class="settings__group-icon" aria-hidden="true">👤</span>
+          <img class="settings__group-icon" src="${ICON_PLAYER_PATH}" alt="" aria-hidden="true" />
           Choose player
         </legend>
         <ul class="settings__radio-list">
@@ -68,7 +73,7 @@ function renderForm(settings: GameSettings): string {
       </fieldset>
       <fieldset class="settings__group">
         <legend class="settings__group-legend">
-          <span class="settings__group-icon" aria-hidden="true">🔲</span>
+          <img class="settings__group-icon" src="${ICON_BOARDSIZE_PATH}" alt="" aria-hidden="true" />
           Board size
         </legend>
         <ul class="settings__radio-list">
@@ -86,13 +91,13 @@ function renderBar(settings: GameSettings): string {
     <div class="settings__bar">
       <nav class="settings__bar-steps" aria-label="Settings progress">
         <span class="settings__bar-step" id="bar-theme">${THEMES[settings.theme].name}</span>
-        <span class="settings__bar-sep" aria-hidden="true">/</span>
+        <span class="settings__bar-sep" aria-hidden="true"></span>
         <span class="settings__bar-step" id="bar-player">${playerLabel}</span>
-        <span class="settings__bar-sep" aria-hidden="true">/</span>
+        <span class="settings__bar-sep" aria-hidden="true"></span>
         <span class="settings__bar-step" id="bar-size">${settings.boardSize} Cards</span>
       </nav>
       <button class="btn btn--start" id="settings-start-btn">
-        <span aria-hidden="true">▶</span> Start
+        <span class="btn--start__icon" aria-hidden="true">▶</span> Start
       </button>
     </div>
   `;

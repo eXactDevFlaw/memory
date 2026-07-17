@@ -1,63 +1,112 @@
 .gameover {
+  --reveal-delay: 5000ms;
+
+  position: relative;
+  overflow: hidden;
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  font-family: var(--font-headline);
   transition: background var(--transition);
 
-  &__header {
-    width: 100%;
-    text-align: center;
-    padding: 40px 24px 32px;
-  }
-
-  &__title {
-    font-size: clamp(2.5rem, 6vw, 4rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-transform: lowercase;
-  }
-
-  &__content {
-    flex: 1;
+  &__stage1 {
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 16px;
     padding: 40px 24px;
+    text-align: center;
+    opacity: 0;
+    animation: stage1FadeIn 300ms ease-out 100ms forwards;
+  }
+
+  &__stage2 {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 24px;
+    padding: 40px 24px;
+    transform: translateY(-100%);
+    animation: stage2SlideDown 650ms cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay) forwards;
+  }
+
+  &__title {
+    width: 100%;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-align: center;
+    text-transform: lowercase;
+  }
+
+  &__final-label {
+    font-size: 1.1rem;
+    font-weight: 500;
+    opacity: 0.75;
   }
 
   &__result {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
     text-align: center;
+    opacity: 0;
+    animation: resultDropIn 400ms ease-out calc(var(--reveal-delay) + 350ms) forwards;
+
+    &--winner {
+      position: relative;
+    }
+  }
+
+  &__confetti {
+    width: min(760px, 100%);
+    height: auto;
+    margin-bottom: 4px;
   }
 
   &__icon {
-    width: 80px;
-    height: 80px;
-    opacity: 0.9;
-    animation: iconPop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    display: block;
+    background-color: currentColor;
+    -webkit-mask-image: var(--mask-src);
+    mask-image: var(--mask-src);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    opacity: 0;
+    animation: iconPop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--reveal-delay) + 600ms) both;
+
+    &--pawn {
+      width: 150px;
+      height: 150px;
+    }
+
+    &--scale {
+      width: 180px;
+      height: 144px;
+    }
   }
 
   &__label {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 500;
     opacity: 0.75;
   }
 
   &__winner-name {
-    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
     font-weight: 800;
     letter-spacing: -0.01em;
   }
 
   &__draw-text {
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-size: clamp(3rem, 8vw, 5.5rem);
     font-weight: 900;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -65,18 +114,53 @@
 
   &__scores {
     display: flex;
-    gap: 28px;
+    gap: 16px;
     align-items: center;
-    font-size: 1rem;
-    font-weight: 600;
-    opacity: 0.85;
   }
 
-  &__score-item {
+  &__score-pill {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 8px 18px;
+    border-radius: var(--radius-lg);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    &--blue   { background: var(--color-blue); }
+    &--orange { background: var(--color-orange); }
   }
+
+  &__score-tag {
+    display: block;
+    width: 16px;
+    height: 13px;
+    background-color: rgba(255, 255, 255, 0.55);
+    -webkit-mask-image: var(--mask-src);
+    mask-image: var(--mask-src);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+}
+
+@keyframes stage1FadeIn {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+@keyframes stage2SlideDown {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes resultDropIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
 @keyframes iconPop {

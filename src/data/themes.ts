@@ -10,12 +10,18 @@ export interface ThemeConfig {
   exitBtnBorder: string;
   gameoverBg: string;
   backIcon: string;
+  previewImage: string;
   icons: CardIcon[];
 }
 
 /** Returns the public-asset URL for an icon, respecting Vite's configured base path. */
 function iconPath(folder: string, file: string): string {
   return `${import.meta.env.BASE_URL}icons/${folder}/${file}.svg`;
+}
+
+/** Returns the public-asset URL for a shared, theme-agnostic UI asset. */
+function uiPath(file: string): string {
+  return `${import.meta.env.BASE_URL}ui/${file}.svg`;
 }
 
 /** Builds the 18 image-based card icons for a theme from a folder + filename list. */
@@ -34,6 +40,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#2A2D30',
     backIcon: iconPath('code-vibes', 'back'),
+    previewImage: uiPath('preview-code-vibes'),
     icons: buildImageIcons('code-vibes', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
   'gaming': {
@@ -46,6 +53,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#1B2744',
     backIcon: iconPath('gaming', 'back'),
+    previewImage: uiPath('preview-gaming'),
     icons: buildImageIcons('gaming', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
   'da-projects': {
@@ -58,6 +66,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#1B3A5C',
     backIcon: iconPath('da-projects', 'back'),
+    previewImage: uiPath('preview-da-projects'),
     icons: buildImageIcons('da-projects', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
   'food': {
@@ -70,6 +79,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     exitBtnBorder: 'rgba(0,0,0,0.2)',
     gameoverBg: '#F5921B',
     backIcon: iconPath('food', 'back'),
+    previewImage: uiPath('preview-foods'),
     icons: buildImageIcons('food', Array.from({ length: 18 }, (_, i) => String(i + 1))),
   },
 };
@@ -79,22 +89,8 @@ export function getTheme(name: ThemeName): ThemeConfig {
   return THEMES[name];
 }
 
-/** Returns a small themed card-grid HTML snippet for the settings preview. */
+/** Returns the themed preview illustration for the settings screen. */
 export function getThemePreviewHtml(name: ThemeName): string {
   const theme = THEMES[name];
-  const previewIcons = theme.icons.slice(0, 4);
-
-  const cardsHtml = previewIcons.map(icon => {
-    let iconHtml: string;
-    if (icon.type === 'badge') {
-      iconHtml = `<span class="preview-card__badge" style="background:${icon.badgeBg};color:${icon.badgeColor}">${icon.value}</span>`;
-    } else if (icon.type === 'image') {
-      iconHtml = `<img class="preview-card__image" src="${icon.value}" alt="" />`;
-    } else {
-      iconHtml = `<span class="preview-card__emoji">${icon.value}</span>`;
-    }
-    return `<div class="preview-card" style="background:${theme.cardBackColor}">${iconHtml}</div>`;
-  }).join('');
-
-  return `<div class="theme-preview" style="background:${theme.bgColor}">${cardsHtml}</div>`;
+  return `<img class="settings__preview-img" src="${theme.previewImage}" alt="${theme.name} preview" />`;
 }
