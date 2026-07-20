@@ -35,15 +35,17 @@
 
   &__title {
     width: 100%;
-    font-size: clamp(3.5rem, 10vw, 7rem);
-    font-weight: 800;
+    font-size: 8.125rem; // 130px @ 1440 baseline
     letter-spacing: -0.02em;
     text-align: center;
-    text-transform: lowercase;
+
+    &--upper {
+      text-transform: uppercase;
+    }
   }
 
   &__final-label {
-    font-size: 1.1rem;
+    font-size: 1.625rem; // 26px @ 1440 baseline
     font-weight: 500;
     opacity: 0.75;
   }
@@ -94,19 +96,19 @@
   }
 
   &__label {
-    font-size: 1.3rem;
+    font-size: 2.5rem; // 40px @ 1440 baseline
     font-weight: 500;
     opacity: 0.75;
   }
 
   &__winner-name {
-    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    font-size: 3.75rem; // 60px @ 1440 baseline
     font-weight: 800;
     letter-spacing: -0.01em;
   }
 
   &__draw-text {
-    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-size: 8.125rem; // 130px @ 1440 baseline
     font-weight: 900;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -114,29 +116,27 @@
 
   &__scores {
     display: flex;
-    gap: 16px;
     align-items: center;
+    gap: 20px;
+    padding: 10px 22px;
+    border-radius: var(--radius-lg);
+    font-size: 2rem; // 32px @ 1440 baseline
+    font-weight: 700;
+
+    &--labeled {
+      gap: 16px;
+    }
   }
 
-  &__score-pill {
+  &__score-entry {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 18px;
-    border-radius: var(--radius-lg);
-    color: #ffffff;
-    font-size: 0.95rem;
-    font-weight: 700;
-
-    &--blue   { background: var(--color-blue); }
-    &--orange { background: var(--color-orange); }
   }
 
-  &__score-tag {
+  &__score-icon {
     display: block;
-    width: 16px;
-    height: 13px;
-    background-color: rgba(255, 255, 255, 0.55);
+    background-color: currentColor;
     -webkit-mask-image: var(--mask-src);
     mask-image: var(--mask-src);
     -webkit-mask-size: contain;
@@ -145,6 +145,16 @@
     mask-repeat: no-repeat;
     -webkit-mask-position: center;
     mask-position: center;
+
+    &--tag {
+      width: 15px;
+      height: 12px;
+    }
+
+    &--pawn {
+      width: 17px;
+      height: 17px;
+    }
   }
 }
 

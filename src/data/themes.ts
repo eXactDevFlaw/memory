@@ -1,4 +1,4 @@
-import type { ThemeName, CardIcon } from '../types/index';
+import type { ThemeName, CardIcon, PlayerColor } from '../types/index';
 
 export interface ThemeConfig {
   name: string;
@@ -9,6 +9,14 @@ export interface ThemeConfig {
   scoreBarBg: string;
   exitBtnBorder: string;
   gameoverBg: string;
+  gameoverTextColor: string;
+  titleFont: string;
+  titleWeight: number;
+  titleColor: string;
+  titleUppercase: boolean;
+  scoreLayout: 'labeled' | 'compact';
+  scoreOrder: [PlayerColor, PlayerColor];
+  scorePillBg: string;
   backIcon: string;
   previewImage: string;
   icons: CardIcon[];
@@ -39,6 +47,14 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#2A2D30',
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#2A2D30',
+    gameoverTextColor: '#ffffff',
+    titleFont: "'Red Rose', var(--font-headline)",
+    titleWeight: 700,
+    titleColor: '#45B7AC',
+    titleUppercase: false,
+    scoreLayout: 'labeled',
+    scoreOrder: ['blue', 'orange'],
+    scorePillBg: 'rgba(255,255,255,0.08)',
     backIcon: iconPath('code-vibes', 'back'),
     previewImage: uiPath('preview-code-vibes'),
     icons: buildImageIcons('code-vibes', Array.from({ length: 18 }, (_, i) => String(i + 1))),
@@ -52,6 +68,14 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#141e36',
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#1B2744',
+    gameoverTextColor: '#ffffff',
+    titleFont: "'Orbitron', var(--font-headline)",
+    titleWeight: 800,
+    titleColor: '#E91E8C',
+    titleUppercase: true,
+    scoreLayout: 'compact',
+    scoreOrder: ['orange', 'blue'],
+    scorePillBg: '#ffffff',
     backIcon: iconPath('gaming', 'back'),
     previewImage: uiPath('preview-gaming'),
     icons: buildImageIcons('gaming', Array.from({ length: 18 }, (_, i) => String(i + 1))),
@@ -65,6 +89,14 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#142d48',
     exitBtnBorder: 'rgba(255,255,255,0.3)',
     gameoverBg: '#1B3A5C',
+    gameoverTextColor: '#ffffff',
+    titleFont: "'Figtree', var(--font-headline)",
+    titleWeight: 800,
+    titleColor: '#1E7594',
+    titleUppercase: true,
+    scoreLayout: 'compact',
+    scoreOrder: ['orange', 'blue'],
+    scorePillBg: '#ffffff',
     backIcon: iconPath('da-projects', 'back'),
     previewImage: uiPath('preview-da-projects'),
     icons: buildImageIcons('da-projects', Array.from({ length: 18 }, (_, i) => String(i + 1))),
@@ -78,6 +110,14 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scoreBarBg: '#ede8e0',
     exitBtnBorder: 'rgba(0,0,0,0.2)',
     gameoverBg: '#F5921B',
+    gameoverTextColor: '#ffffff',
+    titleFont: "'Klee One', var(--font-headline)",
+    titleWeight: 600,
+    titleColor: '#ffffff',
+    titleUppercase: true,
+    scoreLayout: 'compact',
+    scoreOrder: ['orange', 'blue'],
+    scorePillBg: '#ffffff',
     backIcon: iconPath('food', 'back'),
     previewImage: uiPath('preview-foods'),
     icons: buildImageIcons('food', Array.from({ length: 18 }, (_, i) => String(i + 1))),

@@ -1,5 +1,5 @@
 import { getState, resetToHome } from '../state/game-state';
-import { getTheme } from '../data/themes';
+import { getTheme, type ThemeConfig } from '../data/themes';
 import { render } from '../main';
 import type { PlayerColor } from '../types/index';
 
@@ -21,6 +21,11 @@ function getResult(): EndResult {
 /** Returns a mask-colored icon span for an arbitrary SVG asset. */
 function renderMaskIcon(src: string, color: string, modifierClass: string): string {
   return `<span class="gameover__icon ${modifierClass}" style="--mask-src:url('${src}'); color:${color}" aria-hidden="true"></span>`;
+}
+
+/** Returns a mask-colored icon span for the final-score pill (no entrance animation). */
+function renderScoreIcon(src: string, color: string, modifierClass: string): string {
+  return `<span class="gameover__score-icon ${modifierClass}" style="--mask-src:url('${src}'); color:${color}" aria-hidden="true"></span>`;
 }
 
 /** Returns the HTML content section for a winner result. */
@@ -48,18 +53,36 @@ function renderDrawContent(textColor: string, accentColor: string): string {
   `;
 }
 
-/** Returns the HTML for the final score display. */
-function renderFinalScores(scores: Record<PlayerColor, number>): string {
+/** Returns the HTML for a single player's entry within the final-score pill. */
+function renderScoreEntry(player: PlayerColor, score: number, theme: ThemeConfig): string {
+  const playerColor = player === 'blue' ? 'var(--color-blue)' : 'var(--color-orange)';
+  const label = player === 'blue' ? 'Blue' : 'Orange';
+
+  if (theme.scoreLayout === 'labeled') {
+    return `
+      <div class="gameover__score-entry" style="color:${playerColor}">
+        ${renderScoreIcon(SCORE_TAG_PATH, playerColor, 'gameover__score-icon--tag')}
+        ${label} ${score}
+      </div>
+    `;
+  }
+
   return `
-    <div class="gameover__scores">
-      <div class="gameover__score-pill gameover__score-pill--blue">
-        <span class="gameover__score-tag" style="--mask-src:url('${SCORE_TAG_PATH}')" aria-hidden="true"></span>
-        Blue ${scores.blue}
-      </div>
-      <div class="gameover__score-pill gameover__score-pill--orange">
-        <span class="gameover__score-tag" style="--mask-src:url('${SCORE_TAG_PATH}')" aria-hidden="true"></span>
-        Orange ${scores.orange}
-      </div>
+    <div class="gameover__score-entry" style="color:${playerColor}">
+      ${renderScoreIcon(PAWN_ICON_PATH, playerColor, 'gameover__score-icon--pawn')}
+      ${score}
+    </div>
+  `;
+}
+
+/** Returns the HTML for the final score display, themed per the current theme's score layout. */
+function renderFinalScores(scores: Record<PlayerColor, number>, theme: ThemeConfig): string {
+  const entries = theme.scoreOrder
+    .map(player => renderScoreEntry(player, scores[player], theme))
+    .join('');
+  return `
+    <div class="gameover__scores gameover__scores--${theme.scoreLayout}" style="background:${theme.scorePillBg}">
+      ${entries}
     </div>
   `;
 }
@@ -71,16 +94,18 @@ export function renderGameover(): string {
   const result  = getResult();
 
   let resultHtml = '';
-  if (result === 'blue-wins')   resultHtml = renderWinnerContent('blue',   theme.textColor);
-  if (result === 'orange-wins') resultHtml = renderWinnerContent('orange', theme.textColor);
-  if (result === 'draw')        resultHtml = renderDrawContent(theme.textColor, theme.accentColor);
+  if (result === 'blue-wins')   resultHtml = renderWinnerContent('blue',   theme.gameoverTextColor);
+  if (result === 'orange-wins') resultHtml = renderWinnerContent('orange', theme.gameoverTextColor);
+  if (result === 'draw')        resultHtml = renderDrawContent(theme.gameoverTextColor, theme.accentColor);
+
+  const titleClass = theme.titleUppercase ? 'gameover__title gameover__title--upper' : 'gameover__title';
 
   return `
     <main class="gameover" style="background:${theme.bgColor}">
       <section class="gameover__stage1">
-        <h1 class="gameover__title" style="color:${theme.accentColor}">Game over</h1>
-        <p class="gameover__final-label" style="color:${theme.textColor}">Final score</p>
-        ${renderFinalScores(state.scores)}
+        <h1 class="${titleClass}" style="color:${theme.titleColor}; font-family:${theme.titleFont}; font-weight:${theme.titleWeight}">Game over</h1>
+        <p class="gameover__final-label" style="color:${theme.gameoverTextColor}">Final score</p>
+        ${renderFinalScores(state.scores, theme)}
       </section>
       <section class="gameover__stage2" style="background:${theme.bgColor}">
         ${resultHtml}

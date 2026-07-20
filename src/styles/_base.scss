@@ -63,7 +63,7 @@ fieldset {
     background: var(--color-yellow);
     color: #1a1a1a;
     padding: 10px 20px;
-    font-size: 0.95rem;
+    font-size: 1.25rem; // 20px @ 1440 baseline
     border-radius: var(--radius-md);
 
     .btn--start__icon {
@@ -83,7 +83,7 @@ fieldset {
     color: inherit;
     border: 2px solid currentColor;
     padding: 12px 28px;
-    font-size: 1rem;
+    font-size: 1.25rem; // 20px @ 1440 baseline
     border-radius: var(--radius-md);
     margin-top: 24px;
   }
@@ -92,7 +92,7 @@ fieldset {
     background: #e8f5e9;
     color: #2e7d32;
     padding: 10px 20px;
-    font-size: 0.9rem;
+    font-size: 1.25rem; // 20px @ 1440 baseline
     border-radius: var(--radius-md);
   }
 
@@ -101,7 +101,7 @@ fieldset {
     color: #e53935;
     border: 1.5px solid #e53935;
     padding: 10px 20px;
-    font-size: 0.9rem;
+    font-size: 1.25rem; // 20px @ 1440 baseline (assumed same as --secondary, please confirm)
     border-radius: var(--radius-md);
   }
 

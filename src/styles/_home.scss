@@ -27,23 +27,23 @@
   &__content {
     position: relative;
     z-index: 1;
-    text-align: center;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
   }
 
   &__subtitle {
     color: rgba(255, 255, 255, 0.6);
-    font-size: 1.1rem;
+    font-size: 3rem; // 48px @ 1440 baseline
     font-weight: 400;
     letter-spacing: 0.02em;
   }
 
   &__title {
     color: var(--color-white);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-size: 8.75rem; // 140px @ 1440 baseline
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -0.02em;
