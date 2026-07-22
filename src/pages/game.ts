@@ -1,23 +1,72 @@
 import { getState, setState } from '../state/game-state';
-import { getTheme } from '../data/themes';
+import { getTheme, type ThemeConfig } from '../data/themes';
 import { render } from '../main';
-import type { Card, CardIcon } from '../types/index';
+import type { Card, CardIcon, PlayerColor } from '../types/index';
 
 const GRID_COLS: Record<number, number> = { 16: 4, 24: 6, 36: 6 };
 const SCORE_TAG_PATH = `${import.meta.env.BASE_URL}ui/label.svg`;
+const EXIT_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-exit.svg`;
+const MATCH_TO_GAMEOVER_DELAY_MS = 600;
+const MISMATCH_FLIP_BACK_DELAY_MS = 1000;
+
+/** Returns the other player's color. */
+function nextPlayer(current: PlayerColor): PlayerColor {
+  return current === 'blue' ? 'orange' : 'blue';
+}
 
 /** Returns the mask-colored tag icon used next to player scores. */
-function renderScoreTag(player: 'blue' | 'orange'): string {
+function renderScoreTag(player: PlayerColor): string {
   return `<span class="scorebar__tag scorebar__tag--${player}" style="--mask-src:url('${SCORE_TAG_PATH}')" aria-hidden="true"></span>`;
 }
 
 /** Returns a single player's score entry (colored tag + colored label) for the shared score box. */
-function renderScoreEntry(player: 'blue' | 'orange', label: string, score: number): string {
+function renderScoreEntry(player: PlayerColor, label: string, score: number): string {
   return `
     <div class="scorebar__score-entry">
       ${renderScoreTag(player)}
       <span class="scorebar__score-text scorebar__score-text--${player}">${label} ${score}</span>
     </div>
+  `;
+}
+
+/** Returns the shared blue/orange score box. */
+function renderScoresBox(scores: Record<PlayerColor, number>, bg: string): string {
+  return `
+    <div class="scorebar__scores" style="background:${bg}">
+      ${renderScoreEntry('blue', 'Blue', scores.blue)}
+      ${renderScoreEntry('orange', 'Orange', scores.orange)}
+    </div>
+  `;
+}
+
+/** Returns the current-player indicator shown between the two score boxes. */
+function renderCurrentPlayerIndicator(currentPlayer: PlayerColor, textColor: string): string {
+  return `
+    <p class="scorebar__current" style="color:${textColor}">
+      Current player:
+      ${renderScoreTag(currentPlayer)}
+    </p>
+  `;
+}
+
+/** Returns the exit-game button shown on the right of the score bar. */
+function renderExitButton(borderColor: string, textColor: string): string {
+  return `
+    <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${borderColor};color:${textColor}">
+      <span class="scorebar__exit-icon" style="--mask-src:url('${EXIT_ICON_PATH}')" aria-hidden="true"></span>
+      Exit game
+    </button>
+  `;
+}
+
+/** Returns the HTML for the score and player header bar. */
+function renderScorebar(scores: Record<PlayerColor, number>, currentPlayer: PlayerColor, theme: ThemeConfig): string {
+  return `
+    <header class="scorebar" style="background:${theme.scoreBarBg}">
+      ${renderScoresBox(scores, theme.exitBtnBorder)}
+      ${renderCurrentPlayerIndicator(currentPlayer, theme.textColor)}
+      ${renderExitButton(theme.exitBtnBorder, theme.textColor)}
+    </header>
   `;
 }
 
@@ -31,7 +80,7 @@ function shuffle<T>(array: T[]): T[] {
 }
 
 /** Creates and shuffles all card pairs for the given board size and theme. */
-function buildCards(boardSize: number, theme: ReturnType<typeof getTheme>): Card[] {
+function buildCards(boardSize: number, theme: ThemeConfig): Card[] {
   const pairCount = boardSize / 2;
   const iconPool  = theme.icons.slice(0, pairCount);
 
@@ -41,6 +90,13 @@ function buildCards(boardSize: number, theme: ReturnType<typeof getTheme>): Card
   ]);
 
   return shuffle(pairs);
+}
+
+/** Ensures cards exist in state for the given board size and theme (builds them once). */
+function ensureCards(boardSize: number, theme: ThemeConfig): void {
+  if (getState().cards.length === 0) {
+    setState({ cards: buildCards(boardSize, theme) });
+  }
 }
 
 /** Returns the HTML for a card icon (badge, emoji or image). */
@@ -56,50 +112,15 @@ function renderIcon(icon: CardIcon): string {
 
 /** Returns the HTML for a single memory card. */
 function renderCard(card: Card, index: number, backIcon: string): string {
-  const flippedClass = card.isFlipped || card.isMatched ? 'is-flipped' : '';
-  const matchedClass = card.isMatched ? 'is-matched' : '';
+  const stateClasses = `${card.isFlipped || card.isMatched ? 'is-flipped' : ''} ${card.isMatched ? 'is-matched' : ''}`;
+  const disabledAttr = card.isMatched ? 'disabled' : '';
   return `
-    <button
-      class="card ${flippedClass} ${matchedClass}"
-      data-index="${index}"
-      aria-label="Memory card"
-      ${card.isMatched ? 'disabled' : ''}
-    >
+    <button class="card ${stateClasses}" data-index="${index}" aria-label="Memory card" ${disabledAttr}>
       <div class="card__inner">
-        <div class="card__face card__face--hidden">
-          <img class="card__back-image" src="${backIcon}" alt="" />
-        </div>
-        <div class="card__face card__face--revealed">
-          ${renderIcon(card.icon)}
-        </div>
+        <div class="card__face card__face--hidden"><img class="card__back-image" src="${backIcon}" alt="" /></div>
+        <div class="card__face card__face--revealed">${renderIcon(card.icon)}</div>
       </div>
     </button>
-  `;
-}
-
-/** Returns the HTML for the score and player header bar. */
-function renderScorebar(
-  scores: Record<'blue' | 'orange', number>,
-  currentPlayer: 'blue' | 'orange',
-  theme: ReturnType<typeof getTheme>,
-): string {
-  return `
-    <header class="scorebar" style="background:${theme.scoreBarBg}">
-      <div class="scorebar__scores" style="background:${theme.exitBtnBorder}">
-        ${renderScoreEntry('blue', 'Blue', scores.blue)}
-        ${renderScoreEntry('orange', 'Orange', scores.orange)}
-      </div>
-      <p class="scorebar__current" style="color:${theme.textColor}">
-        Current player:
-        ${renderScoreTag(currentPlayer)}
-      </p>
-      <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${theme.exitBtnBorder};color:${theme.textColor}">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
-          <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-        </svg>
-        Exit game
-      </button>
-    </header>
   `;
 }
 
@@ -107,12 +128,7 @@ function renderScorebar(
 function renderField(cards: Card[], cols: number, backIcon: string): string {
   const cardsHtml = cards.map((card, i) => renderCard(card, i, backIcon)).join('');
   return `
-    <section
-      class="field"
-      id="field"
-      aria-label="Game board"
-      style="grid-template-columns: repeat(${cols}, 1fr)"
-    >
+    <section class="field" id="field" aria-label="Game board" style="grid-template-columns: repeat(${cols}, 1fr)">
       ${cardsHtml}
     </section>
   `;
@@ -137,19 +153,16 @@ function renderExitModal(): string {
 export function renderGame(): string {
   const state = getState();
   const theme = getTheme(state.settings.theme);
-  const cols  = GRID_COLS[state.settings.boardSize];
-
-  if (state.cards.length === 0) {
-    setState({ cards: buildCards(state.settings.boardSize, theme) });
-  }
-
+  ensureCards(state.settings.boardSize, theme);
   const { cards, scores, currentPlayer } = getState();
+  const cols = GRID_COLS[state.settings.boardSize];
   return `
-    <div class="game" data-theme="${state.settings.theme}" style="background:${theme.bgColor}">
+    <main class="game" data-theme="${state.settings.theme}" style="background:${theme.bgColor}">
+      <h1 class="visually-hidden">Memory game board</h1>
       ${renderScorebar(scores, currentPlayer, theme)}
       ${renderField(cards, cols, theme.backIcon)}
       ${renderExitModal()}
-    </div>
+    </main>
   `;
 }
 
@@ -176,6 +189,12 @@ function updateScorebar(): void {
   }
 }
 
+/** Ends the game once every card has been matched. */
+function maybeEndGame(cards: Card[]): void {
+  if (!cards.every(c => c.isMatched)) return;
+  setTimeout(() => { setState({ screen: 'gameover' }); render(); }, MATCH_TO_GAMEOVER_DELAY_MS);
+}
+
 /** Handles a successful pair match: updates state, DOM, and checks for game over. */
 function handleMatch(a: number, b: number): void {
   const state  = getState();
@@ -189,27 +208,22 @@ function handleMatch(a: number, b: number): void {
   setState({ cards, scores, flippedIndexes: [], isLocked: false });
   updateCardEl(a, cards[a]);
   updateCardEl(b, cards[b]);
-
-  if (cards.every(c => c.isMatched)) {
-    setTimeout(() => { setState({ screen: 'gameover' }); render(); }, 600);
-  }
+  maybeEndGame(cards);
 }
 
 /** Handles a failed match: flips both cards back and switches the active player. */
 function handleNoMatch(a: number, b: number): void {
   setTimeout(() => {
-    const state   = getState();
-    const cards   = [...state.cards];
-    const next    = state.currentPlayer === 'blue' ? 'orange' : 'blue';
-
+    const state = getState();
+    const cards = [...state.cards];
     cards[a] = { ...cards[a], isFlipped: false };
     cards[b] = { ...cards[b], isFlipped: false };
 
-    setState({ cards, flippedIndexes: [], isLocked: false, currentPlayer: next });
+    setState({ cards, flippedIndexes: [], isLocked: false, currentPlayer: nextPlayer(state.currentPlayer) });
     updateCardEl(a, cards[a]);
     updateCardEl(b, cards[b]);
     updateScorebar();
-  }, 1000);
+  }, MISMATCH_FLIP_BACK_DELAY_MS);
 }
 
 /** Checks if two flipped cards match and delegates to the appropriate handler. */
@@ -236,23 +250,22 @@ function flipCard(index: number): void {
   }
 }
 
-/** Attaches event listeners for the game screen. */
-export function initGame(): void {
-  const exitModal = document.getElementById('exit-modal') as HTMLElement;
-
+/** Wires up the exit-confirmation modal's open/close/confirm buttons. */
+function bindExitModal(modal: HTMLElement): void {
   document.getElementById('exit-game-btn')?.addEventListener('click', () => {
-    exitModal.hidden = false;
+    modal.hidden = false;
   });
-
   document.getElementById('modal-back-btn')?.addEventListener('click', () => {
-    exitModal.hidden = true;
+    modal.hidden = true;
   });
-
   document.getElementById('modal-exit-btn')?.addEventListener('click', () => {
     setState({ screen: 'home', cards: [], flippedIndexes: [], scores: { blue: 0, orange: 0 } });
     render();
   });
+}
 
+/** Wires up click-to-flip delegation on the card grid. */
+function bindFieldClicks(): void {
   document.getElementById('field')?.addEventListener('click', (e) => {
     if (getState().isLocked) return;
     const cardEl = (e.target as HTMLElement).closest<HTMLButtonElement>('.card');
@@ -262,4 +275,11 @@ export function initGame(): void {
     const card  = getState().cards[index];
     if (!card.isFlipped && !card.isMatched) flipCard(index);
   });
+}
+
+/** Attaches event listeners for the game screen. */
+export function initGame(): void {
+  const exitModal = document.getElementById('exit-modal') as HTMLElement;
+  bindExitModal(exitModal);
+  bindFieldClicks();
 }

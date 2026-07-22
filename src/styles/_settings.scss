@@ -178,10 +178,22 @@
     flex: 0 0 300px;
   }
 
+  &__preview-figure {
+    margin: 0;
+  }
+
   &__preview-img {
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  &__preview-caption {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+    text-align: center;
   }
 
   &__bar {
@@ -197,19 +209,24 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    list-style: none;
   }
 
   &__bar-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 1.25rem; // 20px @ 1440 baseline
     font-weight: 600;
     color: #555;
-  }
 
-  &__bar-sep {
-    width: 3px;
-    height: 20px;
-    background: var(--color-yellow);
-    transform: skewX(-20deg);
-    border-radius: 1px;
+    &:not(:first-child)::before {
+      content: '';
+      width: 3px;
+      height: 20px;
+      background: var(--color-yellow);
+      transform: skewX(-20deg);
+      border-radius: 1px;
+    }
   }
 }

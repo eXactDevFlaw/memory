@@ -32,8 +32,11 @@ function uiPath(file: string): string {
   return `${import.meta.env.BASE_URL}ui/${file}.svg`;
 }
 
-/** Builds the 18 image-based card icons for a theme from a folder + filename list. */
-function buildImageIcons(folder: string, files: string[]): CardIcon[] {
+const ICONS_PER_THEME = 18;
+
+/** Builds the image-based card icons for a theme from a folder of numbered files. */
+function buildImageIcons(folder: string): CardIcon[] {
+  const files = Array.from({ length: ICONS_PER_THEME }, (_, i) => String(i + 1));
   return files.map(file => ({ type: 'image', value: iconPath(folder, file) }));
 }
 
@@ -57,7 +60,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scorePillBg: 'rgba(255,255,255,0.08)',
     backIcon: iconPath('code-vibes', 'back'),
     previewImage: uiPath('preview-code-vibes'),
-    icons: buildImageIcons('code-vibes', Array.from({ length: 18 }, (_, i) => String(i + 1))),
+    icons: buildImageIcons('code-vibes'),
   },
   'gaming': {
     name: 'Gaming',
@@ -78,7 +81,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scorePillBg: '#ffffff',
     backIcon: iconPath('gaming', 'back'),
     previewImage: uiPath('preview-gaming'),
-    icons: buildImageIcons('gaming', Array.from({ length: 18 }, (_, i) => String(i + 1))),
+    icons: buildImageIcons('gaming'),
   },
   'da-projects': {
     name: 'DA Projects',
@@ -99,7 +102,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scorePillBg: '#ffffff',
     backIcon: iconPath('da-projects', 'back'),
     previewImage: uiPath('preview-da-projects'),
-    icons: buildImageIcons('da-projects', Array.from({ length: 18 }, (_, i) => String(i + 1))),
+    icons: buildImageIcons('da-projects'),
   },
   'food': {
     name: 'Foods',
@@ -120,7 +123,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     scorePillBg: '#ffffff',
     backIcon: iconPath('food', 'back'),
     previewImage: uiPath('preview-foods'),
-    icons: buildImageIcons('food', Array.from({ length: 18 }, (_, i) => String(i + 1))),
+    icons: buildImageIcons('food'),
   },
 };
 
@@ -132,5 +135,10 @@ export function getTheme(name: ThemeName): ThemeConfig {
 /** Returns the themed preview illustration for the settings screen. */
 export function getThemePreviewHtml(name: ThemeName): string {
   const theme = THEMES[name];
-  return `<img class="settings__preview-img" src="${theme.previewImage}" alt="${theme.name} preview" />`;
+  return `
+    <figure class="settings__preview-figure">
+      <img class="settings__preview-img" src="${theme.previewImage}" alt="${theme.name} preview" />
+      <figcaption class="settings__preview-caption">${theme.name}</figcaption>
+    </figure>
+  `;
 }

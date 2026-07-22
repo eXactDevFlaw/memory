@@ -25,77 +25,97 @@ const SIZE_OPTIONS: { value: BoardSize; label: string }[] = [
   { value: 36, label: '36 cards' },
 ];
 
+/** Returns a single radio option as a list item. */
+function renderRadioOption<T extends string | number>(
+  name: string,
+  option: { value: T; label: string },
+  current: T,
+): string {
+  const checked = current === option.value ? 'checked' : '';
+  return `
+    <li>
+      <label class="settings__radio-label">
+        <input type="radio" name="${name}" value="${option.value}" class="settings__radio-input" ${checked}>
+        <span class="settings__radio-custom"></span>
+        ${option.label}
+        <span class="settings__radio-flourish" aria-hidden="true"></span>
+      </label>
+    </li>
+  `;
+}
+
 /** Returns a radio input group as HTML for a given set of options. */
 function renderRadioGroup<T extends string | number>(
   name: string,
   options: { value: T; label: string }[],
   current: T,
 ): string {
-  return options.map(opt => `
-    <li>
-      <label class="settings__radio-label">
-        <input
-          type="radio"
-          name="${name}"
-          value="${opt.value}"
-          class="settings__radio-input"
-          ${current === opt.value ? 'checked' : ''}
-        >
-        <span class="settings__radio-custom"></span>
-        ${opt.label}
-        <span class="settings__radio-flourish" aria-hidden="true"></span>
-      </label>
-    </li>
-  `).join('');
+  return options.map(opt => renderRadioOption(name, opt, current)).join('');
+}
+
+/** Returns a single settings fieldset (icon + legend + radio options). */
+function renderFieldset<T extends string | number>(
+  iconSrc: string,
+  legend: string,
+  name: string,
+  options: { value: T; label: string }[],
+  current: T,
+): string {
+  return `
+    <fieldset class="settings__group">
+      <legend class="settings__group-legend">
+        <img class="settings__group-icon" src="${iconSrc}" alt="" aria-hidden="true" />
+        ${legend}
+      </legend>
+      <ul class="settings__radio-list">
+        ${renderRadioGroup(name, options, current)}
+      </ul>
+    </fieldset>
+  `;
 }
 
 /** Returns the HTML for the three settings fieldsets. */
 function renderForm(settings: GameSettings): string {
   return `
     <form class="settings__form">
-      <fieldset class="settings__group">
-        <legend class="settings__group-legend">
-          <img class="settings__group-icon" src="${ICON_THEME_PATH}" alt="" aria-hidden="true" />
-          Game themes
-        </legend>
-        <ul class="settings__radio-list">
-          ${renderRadioGroup('theme', THEME_OPTIONS, settings.theme)}
-        </ul>
-      </fieldset>
-      <fieldset class="settings__group">
-        <legend class="settings__group-legend">
-          <img class="settings__group-icon" src="${ICON_PLAYER_PATH}" alt="" aria-hidden="true" />
-          Choose player
-        </legend>
-        <ul class="settings__radio-list">
-          ${renderRadioGroup('player', PLAYER_OPTIONS, settings.player)}
-        </ul>
-      </fieldset>
-      <fieldset class="settings__group">
-        <legend class="settings__group-legend">
-          <img class="settings__group-icon" src="${ICON_BOARDSIZE_PATH}" alt="" aria-hidden="true" />
-          Board size
-        </legend>
-        <ul class="settings__radio-list">
-          ${renderRadioGroup('boardSize', SIZE_OPTIONS, settings.boardSize)}
-        </ul>
-      </fieldset>
+      ${renderFieldset(ICON_THEME_PATH, 'Game themes', 'theme', THEME_OPTIONS, settings.theme)}
+      ${renderFieldset(ICON_PLAYER_PATH, 'Choose player', 'player', PLAYER_OPTIONS, settings.player)}
+      ${renderFieldset(ICON_BOARDSIZE_PATH, 'Board size', 'boardSize', SIZE_OPTIONS, settings.boardSize)}
     </form>
+  `;
+}
+
+/** Returns the form and the theme-preview illustration side by side. */
+function renderBody(settings: GameSettings): string {
+  return `
+    <div class="settings__body">
+      ${renderForm(settings)}
+      <aside class="settings__preview-area" id="settings-preview">
+        ${getThemePreviewHtml(settings.theme)}
+      </aside>
+    </div>
+  `;
+}
+
+/** Returns the step indicators shown in the bottom status bar. */
+function renderBarSteps(settings: GameSettings): string {
+  const playerLabel = settings.player === 'blue' ? 'Blue Player' : 'Orange Player';
+  return `
+    <nav aria-label="Settings progress">
+      <ol class="settings__bar-steps">
+        <li class="settings__bar-step" id="bar-theme">${THEMES[settings.theme].name}</li>
+        <li class="settings__bar-step" id="bar-player">${playerLabel}</li>
+        <li class="settings__bar-step" id="bar-size">${settings.boardSize} Cards</li>
+      </ol>
+    </nav>
   `;
 }
 
 /** Returns the bottom status bar showing current selections. */
 function renderBar(settings: GameSettings): string {
-  const playerLabel = settings.player === 'blue' ? 'Blue Player' : 'Orange Player';
   return `
     <div class="settings__bar">
-      <nav class="settings__bar-steps" aria-label="Settings progress">
-        <span class="settings__bar-step" id="bar-theme">${THEMES[settings.theme].name}</span>
-        <span class="settings__bar-sep" aria-hidden="true"></span>
-        <span class="settings__bar-step" id="bar-player">${playerLabel}</span>
-        <span class="settings__bar-sep" aria-hidden="true"></span>
-        <span class="settings__bar-step" id="bar-size">${settings.boardSize} Cards</span>
-      </nav>
+      ${renderBarSteps(settings)}
       <button class="btn btn--start" id="settings-start-btn">
         <span class="btn--start__icon" aria-hidden="true">▶</span> Start
       </button>
@@ -110,12 +130,7 @@ export function renderSettings(): string {
     <main class="settings">
       <div class="settings__inner">
         <h1 class="settings__title">Settings</h1>
-        <div class="settings__body">
-          ${renderForm(settings)}
-          <div class="settings__preview-area" id="settings-preview">
-            ${getThemePreviewHtml(settings.theme)}
-          </div>
-        </div>
+        ${renderBody(settings)}
         ${renderBar(settings)}
       </div>
     </main>
@@ -136,29 +151,38 @@ function updatePreview(): void {
   if (barSize)   barSize.textContent   = `${settings.boardSize} Cards`;
 }
 
-/** Attaches event listeners for the settings screen. */
-export function initSettings(): void {
+/** Wires up the theme radio inputs. */
+function bindThemeInputs(): void {
   document.querySelectorAll<HTMLInputElement>('input[name="theme"]').forEach(input => {
     input.addEventListener('change', () => {
       setState({ settings: { ...getState().settings, theme: input.value as ThemeName } });
       updatePreview();
     });
   });
+}
 
+/** Wires up the player radio inputs. */
+function bindPlayerInputs(): void {
   document.querySelectorAll<HTMLInputElement>('input[name="player"]').forEach(input => {
     input.addEventListener('change', () => {
       setState({ settings: { ...getState().settings, player: input.value as PlayerColor } });
       updatePreview();
     });
   });
+}
 
+/** Wires up the board-size radio inputs. */
+function bindBoardSizeInputs(): void {
   document.querySelectorAll<HTMLInputElement>('input[name="boardSize"]').forEach(input => {
     input.addEventListener('change', () => {
       setState({ settings: { ...getState().settings, boardSize: Number(input.value) as BoardSize } });
       updatePreview();
     });
   });
+}
 
+/** Wires up the start button to launch the game with the current settings. */
+function bindStartButton(): void {
   document.getElementById('settings-start-btn')?.addEventListener('click', () => {
     setState({
       screen: 'game',
@@ -167,4 +191,12 @@ export function initSettings(): void {
     });
     render();
   });
+}
+
+/** Attaches event listeners for the settings screen. */
+export function initSettings(): void {
+  bindThemeInputs();
+  bindPlayerInputs();
+  bindBoardSizeInputs();
+  bindStartButton();
 }

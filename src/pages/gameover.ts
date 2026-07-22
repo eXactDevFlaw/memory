@@ -18,6 +18,11 @@ function getResult(): EndResult {
   return 'draw';
 }
 
+/** Returns the CSS custom-property color for a player. */
+function playerCssColor(player: PlayerColor): string {
+  return player === 'blue' ? 'var(--color-blue)' : 'var(--color-orange)';
+}
+
 /** Returns a mask-colored icon span for an arbitrary SVG asset. */
 function renderMaskIcon(src: string, color: string, modifierClass: string): string {
   return `<span class="gameover__icon ${modifierClass}" style="--mask-src:url('${src}'); color:${color}" aria-hidden="true"></span>`;
@@ -31,7 +36,7 @@ function renderScoreIcon(src: string, color: string, modifierClass: string): str
 /** Returns the HTML content section for a winner result. */
 function renderWinnerContent(winner: PlayerColor, textColor: string): string {
   const playerLabel = winner === 'blue' ? 'Blue Player' : 'Orange Player';
-  const playerColor = winner === 'blue' ? 'var(--color-blue)' : 'var(--color-orange)';
+  const playerColor  = playerCssColor(winner);
   return `
     <div class="gameover__result gameover__result--winner">
       <img class="gameover__confetti" src="${CONFETTI_PATH}" alt="" aria-hidden="true" />
@@ -53,26 +58,41 @@ function renderDrawContent(textColor: string, accentColor: string): string {
   `;
 }
 
-/** Returns the HTML for a single player's entry within the final-score pill. */
-function renderScoreEntry(player: PlayerColor, score: number, theme: ThemeConfig): string {
-  const playerColor = player === 'blue' ? 'var(--color-blue)' : 'var(--color-orange)';
+/** Returns the stage-2 result content (winner or draw) for the given game outcome. */
+function renderResultContent(result: EndResult, theme: ThemeConfig): string {
+  if (result === 'blue-wins')   return renderWinnerContent('blue', theme.gameoverTextColor);
+  if (result === 'orange-wins') return renderWinnerContent('orange', theme.gameoverTextColor);
+  return renderDrawContent(theme.gameoverTextColor, theme.accentColor);
+}
+
+/** Returns a "labeled" score entry: icon + player name + score, in one color. */
+function renderLabeledScoreEntry(player: PlayerColor, score: number): string {
+  const playerColor = playerCssColor(player);
   const label = player === 'blue' ? 'Blue' : 'Orange';
+  return `
+    <div class="gameover__score-entry" style="color:${playerColor}">
+      ${renderScoreIcon(SCORE_TAG_PATH, playerColor, 'gameover__score-icon--tag')}
+      ${label} ${score}
+    </div>
+  `;
+}
 
-  if (theme.scoreLayout === 'labeled') {
-    return `
-      <div class="gameover__score-entry" style="color:${playerColor}">
-        ${renderScoreIcon(SCORE_TAG_PATH, playerColor, 'gameover__score-icon--tag')}
-        ${label} ${score}
-      </div>
-    `;
-  }
-
+/** Returns a "compact" score entry: icon + score only, in one color. */
+function renderCompactScoreEntry(player: PlayerColor, score: number): string {
+  const playerColor = playerCssColor(player);
   return `
     <div class="gameover__score-entry" style="color:${playerColor}">
       ${renderScoreIcon(PAWN_ICON_PATH, playerColor, 'gameover__score-icon--pawn')}
       ${score}
     </div>
   `;
+}
+
+/** Returns the HTML for a single player's entry within the final-score pill. */
+function renderScoreEntry(player: PlayerColor, score: number, theme: ThemeConfig): string {
+  return theme.scoreLayout === 'labeled'
+    ? renderLabeledScoreEntry(player, score)
+    : renderCompactScoreEntry(player, score);
 }
 
 /** Returns the HTML for the final score display, themed per the current theme's score layout. */
@@ -87,32 +107,44 @@ function renderFinalScores(scores: Record<PlayerColor, number>, theme: ThemeConf
   `;
 }
 
+/** Returns the themed "Game over" title markup. */
+function renderTitle(theme: ThemeConfig): string {
+  const titleClass = theme.titleUppercase ? 'gameover__title gameover__title--upper' : 'gameover__title';
+  const titleStyle = `color:${theme.titleColor}; font-family:${theme.titleFont}; font-weight:${theme.titleWeight}`;
+  return `<h1 class="${titleClass}" style="${titleStyle}">Game over</h1>`;
+}
+
+/** Returns the stage-1 section: title, final-score label and score pill. */
+function renderStage1(theme: ThemeConfig, scores: Record<PlayerColor, number>): string {
+  return `
+    <section class="gameover__stage1">
+      ${renderTitle(theme)}
+      <p class="gameover__final-label" style="color:${theme.gameoverTextColor}">Final score</p>
+      ${renderFinalScores(scores, theme)}
+    </section>
+  `;
+}
+
+/** Returns the stage-2 section: the delayed winner/draw reveal and the back button. */
+function renderStage2(result: EndResult, theme: ThemeConfig): string {
+  return `
+    <section class="gameover__stage2" style="background:${theme.bgColor}">
+      ${renderResultContent(result, theme)}
+      <button class="btn btn--back" id="gameover-back-btn">Back to start</button>
+    </section>
+  `;
+}
+
 /** Returns the full HTML markup for the game-over screen. */
 export function renderGameover(): string {
-  const state   = getState();
-  const theme   = getTheme(state.settings.theme);
-  const result  = getResult();
-
-  let resultHtml = '';
-  if (result === 'blue-wins')   resultHtml = renderWinnerContent('blue',   theme.gameoverTextColor);
-  if (result === 'orange-wins') resultHtml = renderWinnerContent('orange', theme.gameoverTextColor);
-  if (result === 'draw')        resultHtml = renderDrawContent(theme.gameoverTextColor, theme.accentColor);
-
-  const titleClass = theme.titleUppercase ? 'gameover__title gameover__title--upper' : 'gameover__title';
+  const state  = getState();
+  const theme  = getTheme(state.settings.theme);
+  const result = getResult();
 
   return `
     <main class="gameover" style="background:${theme.bgColor}">
-      <section class="gameover__stage1">
-        <h1 class="${titleClass}" style="color:${theme.titleColor}; font-family:${theme.titleFont}; font-weight:${theme.titleWeight}">Game over</h1>
-        <p class="gameover__final-label" style="color:${theme.gameoverTextColor}">Final score</p>
-        ${renderFinalScores(state.scores, theme)}
-      </section>
-      <section class="gameover__stage2" style="background:${theme.bgColor}">
-        ${resultHtml}
-        <button class="btn btn--back" id="gameover-back-btn">
-          Back to start
-        </button>
-      </section>
+      ${renderStage1(theme, state.scores)}
+      ${renderStage2(result, theme)}
     </main>
   `;
 }
