@@ -1,5 +1,24 @@
 import type { ThemeName, CardIcon, PlayerColor } from '../types/index';
 
+export interface ThemeModalConfig {
+  boxBg: string;
+  headingColor: string;
+  backBg: string;
+  backBorder: string;
+  backText: string;
+  backShadow: string;
+  exitBg: string;
+  exitBorder: string;
+  exitText: string;
+  exitShadow: string;
+}
+
+export interface ThemeGameoverBackBtnConfig {
+  bg: string;
+  border: string;
+  text: string;
+}
+
 export interface ThemeConfig {
   name: string;
   bgColor: string;
@@ -20,6 +39,8 @@ export interface ThemeConfig {
   backIcon: string;
   previewImage: string;
   icons: CardIcon[];
+  modal: ThemeModalConfig;
+  gameoverBackBtn: ThemeGameoverBackBtnConfig;
 }
 
 /** Returns the public-asset URL for an icon, respecting Vite's configured base path. */
@@ -61,6 +82,23 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     backIcon: iconPath('code-vibes', 'back'),
     previewImage: uiPath('preview-code-vibes'),
     icons: buildImageIcons('code-vibes'),
+    modal: {
+      boxBg: '#FFFFFF',
+      headingColor: '#303131',
+      backBg: '#66CFBC',
+      backBorder: 'none',
+      backText: '#FFFFFF',
+      backShadow: 'none',
+      exitBg: '#86E9D624',
+      exitBorder: '2px solid #4DD5BC',
+      exitText: '#4DD5BC',
+      exitShadow: 'none',
+    },
+    gameoverBackBtn: {
+      bg: '#86E9D633',
+      border: '1px solid #4DD5BC',
+      text: '#FFFFFF',
+    },
   },
   'gaming': {
     name: 'Gaming',
@@ -82,6 +120,24 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     backIcon: iconPath('gaming', 'back'),
     previewImage: uiPath('preview-gaming'),
     icons: buildImageIcons('gaming'),
+    modal: {
+      boxBg: '#F0F6F9',
+      headingColor: '#294F60',
+      backBg: '#ED1B76',
+      backBorder: '1px solid #E71C4F',
+      backText: '#FFFFFF',
+      backShadow: 'none',
+      exitBg: '#ED1B7614',
+      exitBorder: '1px solid #E71C4F',
+      exitText: '#ED1B76',
+      exitShadow: 'none',
+    },
+    // TODO: placeholder pending exact Figma values for this theme's "Back to start" button.
+    gameoverBackBtn: {
+      bg: '#E91E8C33',
+      border: '1px solid #E91E8C',
+      text: '#FFFFFF',
+    },
   },
   'da-projects': {
     name: 'DA Projects',
@@ -103,6 +159,24 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     backIcon: iconPath('da-projects', 'back'),
     previewImage: uiPath('preview-da-projects'),
     icons: buildImageIcons('da-projects'),
+    modal: {
+      boxBg: '#F0F6F9',
+      headingColor: '#294F60',
+      backBg: '#BFE5F2',
+      backBorder: 'none',
+      backText: '#1E7594',
+      backShadow: '3px 3px 5px 0px #2F2E2E33',
+      exitBg: '#FD8A81',
+      exitBorder: 'none',
+      exitText: '#FFFFFF',
+      exitShadow: '3px 3px 5px 0px #2F2E2E33',
+    },
+    // TODO: placeholder pending exact Figma values for this theme's "Back to start" button.
+    gameoverBackBtn: {
+      bg: '#4FC3F733',
+      border: '1px solid #4FC3F7',
+      text: '#FFFFFF',
+    },
   },
   'food': {
     name: 'Foods',
@@ -124,6 +198,24 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
     backIcon: iconPath('food', 'back'),
     previewImage: uiPath('preview-foods'),
     icons: buildImageIcons('food'),
+    modal: {
+      boxBg: '#F6F6F6',
+      headingColor: '#A45212',
+      backBg: '#FFAB3E',
+      backBorder: '3px solid #F3832D',
+      backText: '#FFFFFF',
+      backShadow: 'none',
+      exitBg: '#FFF9F2',
+      exitBorder: '3px solid #F3832D',
+      exitText: '#F3832D',
+      exitShadow: 'none',
+    },
+    // TODO: placeholder pending exact Figma values for this theme's "Back to start" button.
+    gameoverBackBtn: {
+      bg: '#F3832D33',
+      border: '1px solid #F3832D',
+      text: '#FFFFFF',
+    },
   },
 };
 

@@ -127,10 +127,12 @@ function renderStage1(theme: ThemeConfig, scores: Record<PlayerColor, number>): 
 
 /** Returns the stage-2 section: the delayed winner/draw reveal and the back button. */
 function renderStage2(result: EndResult, theme: ThemeConfig): string {
+  const { bg, border, text } = theme.gameoverBackBtn;
+  const backBtnStyle = `background:${bg}; border:${border}; color:${text}`;
   return `
     <section class="gameover__stage2" style="background:${theme.bgColor}">
       ${renderResultContent(result, theme)}
-      <button class="btn btn--back" id="gameover-back-btn">Back to start</button>
+      <button class="btn btn--back" id="gameover-back-btn" style="${backBtnStyle}">Back to start</button>
     </section>
   `;
 }

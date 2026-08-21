@@ -134,15 +134,18 @@ function renderField(cards: Card[], cols: number, backIcon: string): string {
   `;
 }
 
-/** Returns the HTML for the exit confirmation modal. */
-function renderExitModal(): string {
+/** Returns the HTML for the exit confirmation modal, themed to match the active game theme. */
+function renderExitModal(theme: ThemeConfig): string {
+  const { modal } = theme;
+  const backStyle = `background:${modal.backBg}; border:${modal.backBorder}; color:${modal.backText}; box-shadow:${modal.backShadow}`;
+  const exitStyle = `background:${modal.exitBg}; border:${modal.exitBorder}; color:${modal.exitText}; box-shadow:${modal.exitShadow}`;
   return `
     <div class="modal" id="exit-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading" hidden>
-      <div class="modal__box">
-        <p class="modal__text" id="modal-heading">Are you sure you want to quit the game?</p>
+      <div class="modal__box" style="background:${modal.boxBg}">
+        <p class="modal__text" id="modal-heading" style="color:${modal.headingColor}">Are you sure you want to quit the game?</p>
         <div class="modal__actions">
-          <button class="btn btn--secondary" id="modal-back-btn">Back to game</button>
-          <button class="btn btn--danger"    id="modal-exit-btn">Exit game</button>
+          <button class="btn btn--secondary" id="modal-back-btn" style="${backStyle}">Back to game</button>
+          <button class="btn btn--danger"    id="modal-exit-btn" style="${exitStyle}">Exit game</button>
         </div>
       </div>
     </div>
@@ -161,7 +164,7 @@ export function renderGame(): string {
       <h1 class="visually-hidden">Memory game board</h1>
       ${renderScorebar(scores, currentPlayer, theme)}
       ${renderField(cards, cols, theme.backIcon)}
-      ${renderExitModal()}
+      ${renderExitModal(theme)}
     </main>
   `;
 }

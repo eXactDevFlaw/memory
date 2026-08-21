@@ -233,9 +233,12 @@
   &__box {
     background: #ffffff;
     border-radius: var(--radius-xl);
-    padding: 36px 40px;
-    max-width: 360px;
-    width: 90%;
+    padding: 2.5rem; // 40px @ 1440 baseline
+    width: min(33.75rem, 90%); // 540px @ 1440 baseline
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3.375rem; // 54px @ 1440 baseline
     text-align: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.25);
   }
@@ -244,13 +247,12 @@
     font-size: 2.5rem; // 40px @ 1440 baseline
     font-weight: 600;
     color: #1a1a1a;
-    margin-bottom: 24px;
     line-height: 1.4;
   }
 
   &__actions {
     display: flex;
-    gap: 12px;
+    gap: 0.75rem; // 12px @ 1440 baseline
     justify-content: center;
   }
 }
