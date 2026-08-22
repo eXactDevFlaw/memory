@@ -8,9 +8,6 @@
 
 html {
   height: 100%;
-  // Fluid root size anchored to the 1440px Figma baseline (1440 / 90 = 16px).
-  // Scales 1:1 with viewport width between ~1024px and ~2560px viewports;
-  // clamped outside that range. Tweak the two clamp() bounds to change it.
   font-size: clamp(11.38px, calc(100vw / 90), 28.44px);
 }
 
@@ -48,7 +45,6 @@ fieldset {
   border: none;
 }
 
-// Visually hides content while keeping it available to screen readers
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -61,7 +57,6 @@ fieldset {
   border: 0;
 }
 
-// Shared button styles
 .btn {
   display: inline-flex;
   align-items: center;
@@ -83,7 +78,7 @@ fieldset {
     background: var(--color-yellow);
     color: #1a1a1a;
     padding: 10px 20px;
-    font-size: 1.25rem; // 20px @ 1440 baseline
+    font-size: 1.25rem;
     border-radius: var(--radius-md);
 
     .btn--start__icon {
@@ -99,21 +94,21 @@ fieldset {
   }
 
   &--back {
-    padding: 1rem 1.5rem; // 16px 24px @ 1440 baseline
-    font-size: 1.25rem; // 20px @ 1440 baseline
+    padding: 1rem 1.5rem;
+    font-size: 1.25rem;
     border-radius: var(--radius-md);
   }
 
   &--secondary {
-    padding: 0.625rem 1.25rem; // 10px 20px @ 1440 baseline
-    font-size: 1.25rem; // 20px @ 1440 baseline
+    padding: 0.625rem 1.25rem;
+    font-size: 1.25rem;
     border-radius: var(--radius-md);
     white-space: nowrap;
   }
 
   &--danger {
-    padding: 0.625rem 1.25rem; // 10px 20px @ 1440 baseline
-    font-size: 1.5rem; // 24px @ 1440 baseline
+    padding: 0.625rem 1.25rem;
+    font-size: 1.5rem;
     border-radius: var(--radius-md);
     white-space: nowrap;
   }
@@ -128,7 +123,6 @@ fieldset {
   }
 }
 
-// Shared dot for player colors
 .scorebar__dot {
   display: inline-block;
   width: 12px;

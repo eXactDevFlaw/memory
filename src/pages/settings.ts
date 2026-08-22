@@ -25,7 +25,13 @@ const SIZE_OPTIONS: { value: BoardSize; label: string }[] = [
   { value: 36, label: '36 cards' },
 ];
 
-/** Returns a single radio option as a list item. */
+/**
+ * Returns a single radio option as a list item.
+ * @param name - The `name` attribute shared by the radio group.
+ * @param option - The option's value and display label.
+ * @param current - The currently selected value for the group.
+ * @returns HTML markup for one `<li>` radio option.
+ */
 function renderRadioOption<T extends string | number>(
   name: string,
   option: { value: T; label: string },
@@ -44,7 +50,13 @@ function renderRadioOption<T extends string | number>(
   `;
 }
 
-/** Returns a radio input group as HTML for a given set of options. */
+/**
+ * Returns a radio input group as HTML for a given set of options.
+ * @param name - The `name` attribute shared by the radio group.
+ * @param options - The selectable value/label pairs.
+ * @param current - The currently selected value for the group.
+ * @returns HTML markup for the `<li>` options, concatenated.
+ */
 function renderRadioGroup<T extends string | number>(
   name: string,
   options: { value: T; label: string }[],
@@ -53,7 +65,15 @@ function renderRadioGroup<T extends string | number>(
   return options.map(opt => renderRadioOption(name, opt, current)).join('');
 }
 
-/** Returns a single settings fieldset (icon + legend + radio options). */
+/**
+ * Returns a single settings fieldset (icon + legend + radio options).
+ * @param iconSrc - The URL of the legend's icon image.
+ * @param legend - The fieldset's legend text.
+ * @param name - The `name` attribute shared by the fieldset's radio group.
+ * @param options - The selectable value/label pairs.
+ * @param current - The currently selected value for the group.
+ * @returns HTML markup for the `<fieldset>`.
+ */
 function renderFieldset<T extends string | number>(
   iconSrc: string,
   legend: string,
@@ -74,7 +94,11 @@ function renderFieldset<T extends string | number>(
   `;
 }
 
-/** Returns the HTML for the three settings fieldsets. */
+/**
+ * Returns the HTML for the three settings fieldsets.
+ * @param settings - The currently selected game settings.
+ * @returns HTML markup for the `<form>` containing all fieldsets.
+ */
 function renderForm(settings: GameSettings): string {
   return `
     <form class="settings__form">
@@ -85,7 +109,11 @@ function renderForm(settings: GameSettings): string {
   `;
 }
 
-/** Returns the form and the theme-preview illustration side by side. */
+/**
+ * Returns the form and the theme-preview illustration side by side.
+ * @param settings - The currently selected game settings.
+ * @returns HTML markup for the settings body layout.
+ */
 function renderBody(settings: GameSettings): string {
   return `
     <div class="settings__body">
@@ -97,7 +125,11 @@ function renderBody(settings: GameSettings): string {
   `;
 }
 
-/** Returns the step indicators shown in the bottom status bar. */
+/**
+ * Returns the step indicators shown in the bottom status bar.
+ * @param settings - The currently selected game settings.
+ * @returns HTML markup for the breadcrumb-style step list.
+ */
 function renderBarSteps(settings: GameSettings): string {
   const playerLabel = settings.player === 'blue' ? 'Blue Player' : 'Orange Player';
   return `
@@ -111,7 +143,11 @@ function renderBarSteps(settings: GameSettings): string {
   `;
 }
 
-/** Returns the bottom status bar showing current selections. */
+/**
+ * Returns the bottom status bar showing current selections.
+ * @param settings - The currently selected game settings.
+ * @returns HTML markup for the bottom bar, including the Start button.
+ */
 function renderBar(settings: GameSettings): string {
   return `
     <div class="settings__bar">
@@ -123,7 +159,10 @@ function renderBar(settings: GameSettings): string {
   `;
 }
 
-/** Returns the full HTML markup for the settings screen. */
+/**
+ * Returns the full HTML markup for the settings screen.
+ * @returns HTML markup for the `<main>` settings screen element.
+ */
 export function renderSettings(): string {
   const { settings } = getState();
   return `

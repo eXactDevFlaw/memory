@@ -8,6 +8,7 @@ import type { GameScreen } from './types/index';
 
 const APP = document.getElementById('app')!;
 
+/** A screen's HTML-producing and event-binding functions. */
 type ScreenModule = { render: () => string; init: () => void };
 
 const SCREENS: Record<GameScreen, ScreenModule> = {

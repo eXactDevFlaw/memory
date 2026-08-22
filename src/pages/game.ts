@@ -9,17 +9,31 @@ const EXIT_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-exit.svg`;
 const MATCH_TO_GAMEOVER_DELAY_MS = 600;
 const MISMATCH_FLIP_BACK_DELAY_MS = 1000;
 
-/** Returns the other player's color. */
+/**
+ * Returns the other player's color.
+ * @param current - The player whose turn just ended.
+ * @returns The color of the next player to move.
+ */
 function nextPlayer(current: PlayerColor): PlayerColor {
   return current === 'blue' ? 'orange' : 'blue';
 }
 
-/** Returns the mask-colored tag icon used next to player scores. */
+/**
+ * Returns the mask-colored tag icon used next to player scores.
+ * @param player - The player the tag's color should match.
+ * @returns HTML markup for the tag icon `<span>`.
+ */
 function renderScoreTag(player: PlayerColor): string {
   return `<span class="scorebar__tag scorebar__tag--${player}" style="--mask-src:url('${SCORE_TAG_PATH}')" aria-hidden="true"></span>`;
 }
 
-/** Returns a single player's score entry (colored tag + colored label) for the shared score box. */
+/**
+ * Returns a single player's score entry (colored tag + colored label) for the shared score box.
+ * @param player - The player this entry represents.
+ * @param label - The player's display name.
+ * @param score - The player's current score.
+ * @returns HTML markup for one score entry.
+ */
 function renderScoreEntry(player: PlayerColor, label: string, score: number): string {
   return `
     <div class="scorebar__score-entry">
@@ -29,7 +43,12 @@ function renderScoreEntry(player: PlayerColor, label: string, score: number): st
   `;
 }
 
-/** Returns the shared blue/orange score box. */
+/**
+ * Returns the shared blue/orange score box.
+ * @param scores - The current score for each player.
+ * @param bg - The background color for the score box.
+ * @returns HTML markup for the score box.
+ */
 function renderScoresBox(scores: Record<PlayerColor, number>, bg: string): string {
   return `
     <div class="scorebar__scores" style="background:${bg}">
@@ -39,7 +58,12 @@ function renderScoresBox(scores: Record<PlayerColor, number>, bg: string): strin
   `;
 }
 
-/** Returns the current-player indicator shown between the two score boxes. */
+/**
+ * Returns the current-player indicator shown between the two score boxes.
+ * @param currentPlayer - The player whose turn it currently is.
+ * @param textColor - The color for the "Current player" label text.
+ * @returns HTML markup for the current-player indicator.
+ */
 function renderCurrentPlayerIndicator(currentPlayer: PlayerColor, textColor: string): string {
   return `
     <p class="scorebar__current" style="color:${textColor}">
@@ -49,7 +73,12 @@ function renderCurrentPlayerIndicator(currentPlayer: PlayerColor, textColor: str
   `;
 }
 
-/** Returns the exit-game button shown on the right of the score bar. */
+/**
+ * Returns the exit-game button shown on the right of the score bar.
+ * @param borderColor - The button's border color.
+ * @param textColor - The button's text and icon color.
+ * @returns HTML markup for the exit-game button.
+ */
 function renderExitButton(borderColor: string, textColor: string): string {
   return `
     <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${borderColor};color:${textColor}">
@@ -59,7 +88,13 @@ function renderExitButton(borderColor: string, textColor: string): string {
   `;
 }
 
-/** Returns the HTML for the score and player header bar. */
+/**
+ * Returns the HTML for the score and player header bar.
+ * @param scores - The current score for each player.
+ * @param currentPlayer - The player whose turn it currently is.
+ * @param theme - The active theme's visual configuration.
+ * @returns HTML markup for the `<header>` score bar.
+ */
 function renderScorebar(scores: Record<PlayerColor, number>, currentPlayer: PlayerColor, theme: ThemeConfig): string {
   return `
     <header class="scorebar" style="background:${theme.scoreBarBg}">
@@ -70,7 +105,11 @@ function renderScorebar(scores: Record<PlayerColor, number>, currentPlayer: Play
   `;
 }
 
-/** Shuffles an array in-place using the Fisher-Yates algorithm. */
+/**
+ * Shuffles an array in-place using the Fisher-Yates algorithm.
+ * @param array - The array to shuffle.
+ * @returns The same array, shuffled in place.
+ */
 function shuffle<T>(array: T[]): T[] {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -79,7 +118,12 @@ function shuffle<T>(array: T[]): T[] {
   return array;
 }
 
-/** Creates and shuffles all card pairs for the given board size and theme. */
+/**
+ * Creates and shuffles all card pairs for the given board size and theme.
+ * @param boardSize - The total number of cards on the board.
+ * @param theme - The active theme's visual configuration.
+ * @returns The shuffled list of cards.
+ */
 function buildCards(boardSize: number, theme: ThemeConfig): Card[] {
   const pairCount = boardSize / 2;
   const iconPool  = theme.icons.slice(0, pairCount);
@@ -92,14 +136,22 @@ function buildCards(boardSize: number, theme: ThemeConfig): Card[] {
   return shuffle(pairs);
 }
 
-/** Ensures cards exist in state for the given board size and theme (builds them once). */
+/**
+ * Ensures cards exist in state for the given board size and theme (builds them once).
+ * @param boardSize - The total number of cards on the board.
+ * @param theme - The active theme's visual configuration.
+ */
 function ensureCards(boardSize: number, theme: ThemeConfig): void {
   if (getState().cards.length === 0) {
     setState({ cards: buildCards(boardSize, theme) });
   }
 }
 
-/** Returns the HTML for a card icon (badge, emoji or image). */
+/**
+ * Returns the HTML for a card icon (badge, emoji or image).
+ * @param icon - The icon to render.
+ * @returns HTML markup for the icon.
+ */
 function renderIcon(icon: CardIcon): string {
   if (icon.type === 'badge') {
     return `<span class="card__badge" style="background:${icon.badgeBg};color:${icon.badgeColor}">${icon.value}</span>`;
@@ -110,7 +162,13 @@ function renderIcon(icon: CardIcon): string {
   return `<span class="card__emoji">${icon.value}</span>`;
 }
 
-/** Returns the HTML for a single memory card. */
+/**
+ * Returns the HTML for a single memory card.
+ * @param card - The card's current state.
+ * @param index - The card's position in the board array.
+ * @param backIcon - The URL of the theme's card-back image.
+ * @returns HTML markup for the card button.
+ */
 function renderCard(card: Card, index: number, backIcon: string): string {
   const stateClasses = `${card.isFlipped || card.isMatched ? 'is-flipped' : ''} ${card.isMatched ? 'is-matched' : ''}`;
   const disabledAttr = card.isMatched ? 'disabled' : '';
@@ -124,7 +182,13 @@ function renderCard(card: Card, index: number, backIcon: string): string {
   `;
 }
 
-/** Returns the HTML for the card grid. */
+/**
+ * Returns the HTML for the card grid.
+ * @param cards - The full list of cards on the board.
+ * @param cols - The number of grid columns to lay the cards out in.
+ * @param backIcon - The URL of the theme's card-back image.
+ * @returns HTML markup for the card grid `<section>`.
+ */
 function renderField(cards: Card[], cols: number, backIcon: string): string {
   const cardsHtml = cards.map((card, i) => renderCard(card, i, backIcon)).join('');
   return `
@@ -134,7 +198,11 @@ function renderField(cards: Card[], cols: number, backIcon: string): string {
   `;
 }
 
-/** Returns the HTML for the exit confirmation modal, themed to match the active game theme. */
+/**
+ * Returns the HTML for the exit confirmation modal, themed to match the active game theme.
+ * @param theme - The active theme's visual configuration.
+ * @returns HTML markup for the exit-confirmation modal.
+ */
 function renderExitModal(theme: ThemeConfig): string {
   const { modal } = theme;
   const backStyle = `background:${modal.backBg}; border:${modal.backBorder}; color:${modal.backText}; box-shadow:${modal.backShadow}`;
@@ -152,7 +220,10 @@ function renderExitModal(theme: ThemeConfig): string {
   `;
 }
 
-/** Returns the full HTML markup for the game screen. */
+/**
+ * Returns the full HTML markup for the game screen.
+ * @returns HTML markup for the `<main>` game screen element.
+ */
 export function renderGame(): string {
   const state = getState();
   const theme = getTheme(state.settings.theme);
@@ -169,7 +240,11 @@ export function renderGame(): string {
   `;
 }
 
-/** Updates a single card element in the DOM to reflect its current state. */
+/**
+ * Updates a single card element in the DOM to reflect its current state.
+ * @param index - The card's position in the board array.
+ * @param card - The card's current state.
+ */
 function updateCardEl(index: number, card: Card): void {
   const el = document.querySelector<HTMLButtonElement>(`.card[data-index="${index}"]`);
   if (!el) return;
@@ -192,13 +267,20 @@ function updateScorebar(): void {
   }
 }
 
-/** Ends the game once every card has been matched. */
+/**
+ * Ends the game once every card has been matched.
+ * @param cards - The full list of cards on the board.
+ */
 function maybeEndGame(cards: Card[]): void {
   if (!cards.every(c => c.isMatched)) return;
   setTimeout(() => { setState({ screen: 'gameover' }); render(); }, MATCH_TO_GAMEOVER_DELAY_MS);
 }
 
-/** Handles a successful pair match: updates state, DOM, and checks for game over. */
+/**
+ * Handles a successful pair match: updates state, DOM, and checks for game over.
+ * @param a - The index of the first matched card.
+ * @param b - The index of the second matched card.
+ */
 function handleMatch(a: number, b: number): void {
   const state  = getState();
   const cards  = [...state.cards];
@@ -214,7 +296,11 @@ function handleMatch(a: number, b: number): void {
   maybeEndGame(cards);
 }
 
-/** Handles a failed match: flips both cards back and switches the active player. */
+/**
+ * Handles a failed match: flips both cards back and switches the active player.
+ * @param a - The index of the first flipped card.
+ * @param b - The index of the second flipped card.
+ */
 function handleNoMatch(a: number, b: number): void {
   setTimeout(() => {
     const state = getState();
@@ -229,7 +315,11 @@ function handleNoMatch(a: number, b: number): void {
   }, MISMATCH_FLIP_BACK_DELAY_MS);
 }
 
-/** Checks if two flipped cards match and delegates to the appropriate handler. */
+/**
+ * Checks if two flipped cards match and delegates to the appropriate handler.
+ * @param a - The index of the first flipped card.
+ * @param b - The index of the second flipped card.
+ */
 function checkMatch(a: number, b: number): void {
   const { cards } = getState();
   const isMatch   = cards[a].pairId === cards[b].pairId;
@@ -237,7 +327,10 @@ function checkMatch(a: number, b: number): void {
   else         handleNoMatch(a, b);
 }
 
-/** Flips the card at the given index and triggers a match check after the second flip. */
+/**
+ * Flips the card at the given index and triggers a match check after the second flip.
+ * @param index - The index of the card to flip.
+ */
 function flipCard(index: number): void {
   const state          = getState();
   const cards          = [...state.cards];
@@ -253,7 +346,10 @@ function flipCard(index: number): void {
   }
 }
 
-/** Wires up the exit-confirmation modal's open/close/confirm buttons. */
+/**
+ * Wires up the exit-confirmation modal's open/close/confirm buttons.
+ * @param modal - The modal's root element.
+ */
 function bindExitModal(modal: HTMLElement): void {
   document.getElementById('exit-game-btn')?.addEventListener('click', () => {
     modal.hidden = false;

@@ -1,8 +1,16 @@
+/** The four selectable visual themes for the game board. */
 export type ThemeName = 'code-vibes' | 'gaming' | 'da-projects' | 'food';
+
+/** The two players a card can belong to. */
 export type PlayerColor = 'blue' | 'orange';
+
+/** The number of cards a board can be set up with. */
 export type BoardSize = 16 | 24 | 36;
+
+/** The top-level screen currently shown by the app. */
 export type GameScreen = 'home' | 'settings' | 'game' | 'gameover';
 
+/** A single card face's visual content. */
 export interface CardIcon {
   type: 'emoji' | 'badge' | 'image';
   value: string;
@@ -10,6 +18,7 @@ export interface CardIcon {
   badgeColor?: string;
 }
 
+/** A single memory card and its current flip/match state. */
 export interface Card {
   id: number;
   pairId: number;
@@ -18,12 +27,14 @@ export interface Card {
   isMatched: boolean;
 }
 
+/** The player-configurable options chosen on the settings screen. */
 export interface GameSettings {
   theme: ThemeName;
   player: PlayerColor;
   boardSize: BoardSize;
 }
 
+/** The full application state for one game session. */
 export interface GameState {
   screen: GameScreen;
   settings: GameSettings;

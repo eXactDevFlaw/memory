@@ -1,5 +1,6 @@
 import type { ThemeName, CardIcon, PlayerColor } from '../types/index';
 
+/** Per-theme colors and sizing for the in-game exit-confirmation modal. */
 export interface ThemeModalConfig {
   boxBg: string;
   headingColor: string;
@@ -13,12 +14,18 @@ export interface ThemeModalConfig {
   exitShadow: string;
 }
 
+/**
+ * Per-theme colors for the game-over screen's "Back to start" button.
+ * Only the `code-vibes` theme's values come from an exact Figma spec so far;
+ * the other three themes currently use placeholders derived from their `accentColor`.
+ */
 export interface ThemeGameoverBackBtnConfig {
   bg: string;
   border: string;
   text: string;
 }
 
+/** A game theme's full visual configuration. */
 export interface ThemeConfig {
   name: string;
   bgColor: string;
@@ -43,19 +50,32 @@ export interface ThemeConfig {
   gameoverBackBtn: ThemeGameoverBackBtnConfig;
 }
 
-/** Returns the public-asset URL for an icon, respecting Vite's configured base path. */
+/**
+ * Returns the public-asset URL for an icon, respecting Vite's configured base path.
+ * @param folder - The theme's icon subfolder name.
+ * @param file - The icon file's base name, without extension.
+ * @returns The icon's public URL.
+ */
 function iconPath(folder: string, file: string): string {
   return `${import.meta.env.BASE_URL}icons/${folder}/${file}.svg`;
 }
 
-/** Returns the public-asset URL for a shared, theme-agnostic UI asset. */
+/**
+ * Returns the public-asset URL for a shared, theme-agnostic UI asset.
+ * @param file - The asset file's base name, without extension.
+ * @returns The asset's public URL.
+ */
 function uiPath(file: string): string {
   return `${import.meta.env.BASE_URL}ui/${file}.svg`;
 }
 
 const ICONS_PER_THEME = 18;
 
-/** Builds the image-based card icons for a theme from a folder of numbered files. */
+/**
+ * Builds the image-based card icons for a theme from a folder of numbered files.
+ * @param folder - The theme's icon subfolder name.
+ * @returns The theme's full pool of card icons.
+ */
 function buildImageIcons(folder: string): CardIcon[] {
   const files = Array.from({ length: ICONS_PER_THEME }, (_, i) => String(i + 1));
   return files.map(file => ({ type: 'image', value: iconPath(folder, file) }));
@@ -132,7 +152,6 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
       exitText: '#ED1B76',
       exitShadow: 'none',
     },
-    // TODO: placeholder pending exact Figma values for this theme's "Back to start" button.
     gameoverBackBtn: {
       bg: '#E91E8C33',
       border: '1px solid #E91E8C',
@@ -171,7 +190,6 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
       exitText: '#FFFFFF',
       exitShadow: '3px 3px 5px 0px #2F2E2E33',
     },
-    // TODO: placeholder pending exact Figma values for this theme's "Back to start" button.
     gameoverBackBtn: {
       bg: '#4FC3F733',
       border: '1px solid #4FC3F7',
@@ -210,7 +228,6 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
       exitText: '#F3832D',
       exitShadow: 'none',
     },
-    // TODO: placeholder pending exact Figma values for this theme's "Back to start" button.
     gameoverBackBtn: {
       bg: '#F3832D33',
       border: '1px solid #F3832D',
@@ -219,12 +236,20 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
   },
 };
 
-/** Returns the config for a given theme name. */
+/**
+ * Returns the config for a given theme name.
+ * @param name - The theme to look up.
+ * @returns The theme's full visual configuration.
+ */
 export function getTheme(name: ThemeName): ThemeConfig {
   return THEMES[name];
 }
 
-/** Returns the themed preview illustration for the settings screen. */
+/**
+ * Returns the themed preview illustration for the settings screen.
+ * @param name - The theme to render a preview for.
+ * @returns HTML markup for the preview `<figure>`.
+ */
 export function getThemePreviewHtml(name: ThemeName): string {
   const theme = THEMES[name];
   return `
