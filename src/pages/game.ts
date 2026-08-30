@@ -1,7 +1,7 @@
 import { getState, setState } from '../state/game-state';
 import { getTheme, type ThemeConfig } from '../data/themes';
 import { render } from '../main';
-import type { Card, CardIcon, PlayerColor } from '../types/index';
+import type { Card, CardIcon, PlayerColor, ThemeName, BoardSize } from '../types/index';
 
 const GRID_COLS: Record<number, number> = { 16: 4, 24: 6, 36: 6 };
 const SCORE_TAG_PATH = `${import.meta.env.BASE_URL}ui/label.svg`;
@@ -199,25 +199,61 @@ function renderField(cards: Card[], cols: number, backIcon: string): string {
 }
 
 /**
+ * Returns an inline `style` value for one exit-modal button.
+ * @param bg - Background color.
+ * @param border - Border shorthand.
+ * @param color - Text color.
+ * @param shadow - Box-shadow shorthand.
+ * @returns A CSS declaration string for the `style` attribute.
+ */
+function modalButtonStyle(bg: string, border: string, color: string, shadow: string): string {
+  return `background:${bg}; border:${border}; color:${color}; box-shadow:${shadow}`;
+}
+
+/**
+ * Returns the HTML for the exit-modal's back/exit action buttons.
+ * @param backStyle - The `style` value for the "Back to game" button.
+ * @param exitStyle - The `style` value for the "Exit game" button.
+ * @returns HTML markup for the modal's actions.
+ */
+function renderModalActions(backStyle: string, exitStyle: string): string {
+  return `
+    <div class="modal__actions">
+      <button class="btn btn--secondary" id="modal-back-btn" style="${backStyle}">Back to game</button>
+      <button class="btn btn--danger"    id="modal-exit-btn" style="${exitStyle}">Exit game</button>
+    </div>
+  `;
+}
+
+/**
  * Returns the HTML for the exit confirmation modal, themed to match the active game theme.
  * @param theme - The active theme's visual configuration.
  * @returns HTML markup for the exit-confirmation modal.
  */
 function renderExitModal(theme: ThemeConfig): string {
   const { modal } = theme;
-  const backStyle = `background:${modal.backBg}; border:${modal.backBorder}; color:${modal.backText}; box-shadow:${modal.backShadow}`;
-  const exitStyle = `background:${modal.exitBg}; border:${modal.exitBorder}; color:${modal.exitText}; box-shadow:${modal.exitShadow}`;
+  const backStyle = modalButtonStyle(modal.backBg, modal.backBorder, modal.backText, modal.backShadow);
+  const exitStyle = modalButtonStyle(modal.exitBg, modal.exitBorder, modal.exitText, modal.exitShadow);
   return `
     <div class="modal" id="exit-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading" hidden>
       <div class="modal__box" style="background:${modal.boxBg}">
         <p class="modal__text" id="modal-heading" style="color:${modal.headingColor}">Are you sure you want to quit the game?</p>
-        <div class="modal__actions">
-          <button class="btn btn--secondary" id="modal-back-btn" style="${backStyle}">Back to game</button>
-          <button class="btn btn--danger"    id="modal-exit-btn" style="${exitStyle}">Exit game</button>
-        </div>
+        ${renderModalActions(backStyle, exitStyle)}
       </div>
     </div>
   `;
+}
+
+/**
+ * Resolves the confirmed settings into the active theme, board size, and grid column count.
+ * @returns The active theme key, its visual configuration, the board size, and grid columns.
+ */
+function resolveGameSetup(): { themeKey: ThemeName; theme: ThemeConfig; boardSize: BoardSize; cols: number } {
+  const { settings } = getState();
+  const themeKey  = settings.theme as ThemeName;
+  const boardSize = settings.boardSize as BoardSize;
+  const theme     = getTheme(themeKey);
+  return { themeKey, theme, boardSize, cols: GRID_COLS[boardSize] };
 }
 
 /**
@@ -225,13 +261,11 @@ function renderExitModal(theme: ThemeConfig): string {
  * @returns HTML markup for the `<main>` game screen element.
  */
 export function renderGame(): string {
-  const state = getState();
-  const theme = getTheme(state.settings.theme);
-  ensureCards(state.settings.boardSize, theme);
+  const { themeKey, theme, boardSize, cols } = resolveGameSetup();
+  ensureCards(boardSize, theme);
   const { cards, scores, currentPlayer } = getState();
-  const cols = GRID_COLS[state.settings.boardSize];
   return `
-    <main class="game" data-theme="${state.settings.theme}" style="background:${theme.bgColor}">
+    <main class="game" data-theme="${themeKey}" style="background:${theme.bgColor}">
       <h1 class="visually-hidden">Memory game board</h1>
       ${renderScorebar(scores, currentPlayer, theme)}
       ${renderField(cards, cols, theme.backIcon)}

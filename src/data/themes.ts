@@ -255,7 +255,7 @@ export function getThemePreviewHtml(name: ThemeName): string {
   return `
     <figure class="settings__preview-figure">
       <img class="settings__preview-img" src="${theme.previewImage}" alt="${theme.name} preview" />
-      <figcaption class="settings__preview-caption">${theme.name}</figcaption>
+      <figcaption class="visually-hidden">${theme.name} board preview</figcaption>
     </figure>
   `;
 }

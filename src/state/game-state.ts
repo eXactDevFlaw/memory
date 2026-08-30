@@ -1,9 +1,9 @@
 import type { GameState, GameSettings } from '../types/index';
 
 const DEFAULT_SETTINGS: GameSettings = {
-  theme: 'code-vibes',
-  player: 'blue',
-  boardSize: 16,
+  theme: null,
+  player: null,
+  boardSize: null,
 };
 
 let state: GameState = {

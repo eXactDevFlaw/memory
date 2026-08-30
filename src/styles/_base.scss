@@ -74,24 +74,6 @@ fieldset {
     transform: translateY(0);
   }
 
-  &--start {
-    background: var(--color-yellow);
-    color: #1a1a1a;
-    padding: 10px 20px;
-    font-size: 1.25rem;
-    border-radius: var(--radius-md);
-
-    .btn--start__icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 22px;
-      height: 22px;
-      border: 1.5px solid currentColor;
-      border-radius: var(--radius-sm);
-      font-size: 0.7rem;
-    }
-  }
 
   &--back {
     padding: 1rem 1.5rem;

@@ -27,11 +27,11 @@ export interface Card {
   isMatched: boolean;
 }
 
-/** The player-configurable options chosen on the settings screen. */
+/** The player-configurable options chosen on the settings screen. `null` means not yet picked. */
 export interface GameSettings {
-  theme: ThemeName;
-  player: PlayerColor;
-  boardSize: BoardSize;
+  theme: ThemeName | null;
+  player: PlayerColor | null;
+  boardSize: BoardSize | null;
 }
 
 /** The full application state for one game session. */

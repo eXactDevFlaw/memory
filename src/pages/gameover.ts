@@ -1,7 +1,7 @@
 import { getState, resetToHome } from '../state/game-state';
 import { getTheme, type ThemeConfig } from '../data/themes';
 import { render } from '../main';
-import type { PlayerColor } from '../types/index';
+import type { PlayerColor, ThemeName } from '../types/index';
 
 /** The outcome of a finished game. */
 type EndResult = 'blue-wins' | 'orange-wins' | 'draw';
@@ -213,7 +213,7 @@ function renderStage2(result: EndResult, theme: ThemeConfig): string {
  */
 export function renderGameover(): string {
   const state  = getState();
-  const theme  = getTheme(state.settings.theme);
+  const theme  = getTheme(state.settings.theme as ThemeName);
   const result = getResult();
 
   return `

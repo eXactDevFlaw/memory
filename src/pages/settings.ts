@@ -7,6 +7,9 @@ const ICON_THEME_PATH     = `${import.meta.env.BASE_URL}ui/icon-theme.svg`;
 const ICON_PLAYER_PATH    = `${import.meta.env.BASE_URL}ui/icon-player.svg`;
 const ICON_BOARDSIZE_PATH = `${import.meta.env.BASE_URL}ui/icon-boardsize.svg`;
 
+const START_BTN_ACTIVE_PATH   = `${import.meta.env.BASE_URL}ui/play-btn-active.svg`;
+const START_BTN_DISABLED_PATH = `${import.meta.env.BASE_URL}ui/play-btn-disabled.svg`;
+
 const THEME_OPTIONS: { value: ThemeName; label: string }[] = [
   { value: 'code-vibes',  label: 'Code vibes theme' },
   { value: 'gaming',      label: 'Gaming theme' },
@@ -35,7 +38,7 @@ const SIZE_OPTIONS: { value: BoardSize; label: string }[] = [
 function renderRadioOption<T extends string | number>(
   name: string,
   option: { value: T; label: string },
-  current: T,
+  current: T | null,
 ): string {
   const checked = current === option.value ? 'checked' : '';
   return `
@@ -60,7 +63,7 @@ function renderRadioOption<T extends string | number>(
 function renderRadioGroup<T extends string | number>(
   name: string,
   options: { value: T; label: string }[],
-  current: T,
+  current: T | null,
 ): string {
   return options.map(opt => renderRadioOption(name, opt, current)).join('');
 }
@@ -79,7 +82,7 @@ function renderFieldset<T extends string | number>(
   legend: string,
   name: string,
   options: { value: T; label: string }[],
-  current: T,
+  current: T | null,
 ): string {
   return `
     <fieldset class="settings__group">
@@ -110,7 +113,23 @@ function renderForm(settings: GameSettings): string {
 }
 
 /**
- * Returns the form and the theme-preview illustration side by side.
+ * Returns the theme-preview illustration and the selection bar, stacked.
+ * @param settings - The currently selected game settings.
+ * @returns HTML markup for the preview column.
+ */
+function renderPreviewColumn(settings: GameSettings): string {
+  return `
+    <div class="settings__preview-column">
+      <aside class="settings__preview-area" id="settings-preview">
+        ${settings.theme ? getThemePreviewHtml(settings.theme) : ''}
+      </aside>
+      ${renderBar(settings)}
+    </div>
+  `;
+}
+
+/**
+ * Returns the form and the preview column side by side.
  * @param settings - The currently selected game settings.
  * @returns HTML markup for the settings body layout.
  */
@@ -118,11 +137,25 @@ function renderBody(settings: GameSettings): string {
   return `
     <div class="settings__body">
       ${renderForm(settings)}
-      <aside class="settings__preview-area" id="settings-preview">
-        ${getThemePreviewHtml(settings.theme)}
-      </aside>
+      ${renderPreviewColumn(settings)}
     </div>
   `;
+}
+
+/**
+ * Returns one breadcrumb step's label and pending/filled state.
+ * @param value - The chosen value, or `null` if not yet picked.
+ * @param placeholder - The generic label to show while unpicked.
+ * @param format - Formats a chosen value into its display label.
+ * @returns The step's `{ label, pending }` pair.
+ */
+function barStepState<T>(value: T | null, placeholder: string, format: (value: T) => string): { label: string; pending: boolean } {
+  return value === null ? { label: placeholder, pending: true } : { label: format(value), pending: false };
+}
+
+function renderBarStep(id: string, value: string | null, placeholder: string, format: (value: string) => string): string {
+  const { label, pending } = barStepState(value, placeholder, format);
+  return `<li class="settings__bar-step${pending ? ' settings__bar-step--pending' : ''}" id="${id}">${label}</li>`;
 }
 
 /**
@@ -131,16 +164,24 @@ function renderBody(settings: GameSettings): string {
  * @returns HTML markup for the breadcrumb-style step list.
  */
 function renderBarSteps(settings: GameSettings): string {
-  const playerLabel = settings.player === 'blue' ? 'Blue Player' : 'Orange Player';
   return `
     <nav aria-label="Settings progress">
       <ol class="settings__bar-steps">
-        <li class="settings__bar-step" id="bar-theme">${THEMES[settings.theme].name}</li>
-        <li class="settings__bar-step" id="bar-player">${playerLabel}</li>
-        <li class="settings__bar-step" id="bar-size">${settings.boardSize} Cards</li>
+        ${renderBarStep('bar-theme', settings.theme, 'Game theme', value => THEMES[value as ThemeName].name)}
+        ${renderBarStep('bar-player', settings.player, 'Player', value => value === 'blue' ? 'Blue Player' : 'Orange Player')}
+        ${renderBarStep('bar-size', settings.boardSize === null ? null : String(settings.boardSize), 'Board size', value => `Board-${value} Cards`)}
       </ol>
     </nav>
   `;
+}
+
+/**
+ * Reports whether every setting has been picked, i.e. the game can be started.
+ * @param settings - The currently selected game settings.
+ * @returns `true` once theme, player, and board size are all non-null.
+ */
+function isComplete(settings: GameSettings): boolean {
+  return settings.theme !== null && settings.player !== null && settings.boardSize !== null;
 }
 
 /**
@@ -149,11 +190,12 @@ function renderBarSteps(settings: GameSettings): string {
  * @returns HTML markup for the bottom bar, including the Start button.
  */
 function renderBar(settings: GameSettings): string {
+  const canStart = isComplete(settings);
   return `
     <div class="settings__bar">
       ${renderBarSteps(settings)}
-      <button class="btn btn--start" id="settings-start-btn">
-        <span class="btn--start__icon" aria-hidden="true">▶</span> Start
+      <button class="btn--start" id="settings-start-btn" aria-label="Start the game" ${canStart ? '' : 'disabled'}>
+        <img id="settings-start-icon" src="${canStart ? START_BTN_ACTIVE_PATH : START_BTN_DISABLED_PATH}" alt="" />
       </button>
     </div>
   `;
@@ -170,24 +212,36 @@ export function renderSettings(): string {
       <div class="settings__inner">
         <h1 class="settings__title">Settings</h1>
         ${renderBody(settings)}
-        ${renderBar(settings)}
       </div>
     </main>
   `;
 }
 
-/** Updates the settings bar labels and theme preview to reflect current state. */
+/**
+ * Applies a breadcrumb step's pending/filled state and label to its `<li>`.
+ * @param el - The step element, or `null` if not yet mounted.
+ */
+function applyBarStep(el: HTMLElement | null, value: string | null, placeholder: string, format: (value: string) => string): void {
+  if (!el) return;
+  const { label, pending } = barStepState(value, placeholder, format);
+  el.textContent = label;
+  el.classList.toggle('settings__bar-step--pending', pending);
+}
+
+/** Updates the settings bar labels, theme preview, and Start button to reflect current state. */
 function updatePreview(): void {
   const { settings } = getState();
   const preview   = document.getElementById('settings-preview');
-  const barTheme  = document.getElementById('bar-theme');
-  const barPlayer = document.getElementById('bar-player');
-  const barSize   = document.getElementById('bar-size');
+  const startBtn  = document.getElementById('settings-start-btn') as HTMLButtonElement | null;
+  const startIcon = document.getElementById('settings-start-icon') as HTMLImageElement | null;
+  const canStart  = isComplete(settings);
 
-  if (preview)   preview.innerHTML   = getThemePreviewHtml(settings.theme);
-  if (barTheme)  barTheme.textContent  = THEMES[settings.theme].name;
-  if (barPlayer) barPlayer.textContent = settings.player === 'blue' ? 'Blue Player' : 'Orange Player';
-  if (barSize)   barSize.textContent   = `${settings.boardSize} Cards`;
+  if (preview) preview.innerHTML = settings.theme ? getThemePreviewHtml(settings.theme) : '';
+  applyBarStep(document.getElementById('bar-theme'), settings.theme, 'Game theme', value => THEMES[value as ThemeName].name);
+  applyBarStep(document.getElementById('bar-player'), settings.player, 'Player', value => value === 'blue' ? 'Blue Player' : 'Orange Player');
+  applyBarStep(document.getElementById('bar-size'), settings.boardSize === null ? null : String(settings.boardSize), 'Board size', value => `Board-${value} Cards`);
+  if (startBtn)  startBtn.disabled = !canStart;
+  if (startIcon) startIcon.src = canStart ? START_BTN_ACTIVE_PATH : START_BTN_DISABLED_PATH;
 }
 
 /** Wires up the theme radio inputs. */
@@ -223,9 +277,11 @@ function bindBoardSizeInputs(): void {
 /** Wires up the start button to launch the game with the current settings. */
 function bindStartButton(): void {
   document.getElementById('settings-start-btn')?.addEventListener('click', () => {
+    const { settings } = getState();
+    if (!isComplete(settings)) return;
     setState({
       screen: 'game',
-      currentPlayer: getState().settings.player,
+      currentPlayer: settings.player as PlayerColor,
       scores: { blue: 0, orange: 0 },
     });
     render();
