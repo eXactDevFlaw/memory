@@ -327,6 +327,7 @@ function handleMatch(a: number, b: number): void {
   setState({ cards, scores, flippedIndexes: [], isLocked: false });
   updateCardEl(a, cards[a]);
   updateCardEl(b, cards[b]);
+  updateScorebar();
   maybeEndGame(cards);
 }
 
@@ -392,7 +393,7 @@ function bindExitModal(modal: HTMLElement): void {
     modal.hidden = true;
   });
   document.getElementById('modal-exit-btn')?.addEventListener('click', () => {
-    setState({ screen: 'home', cards: [], flippedIndexes: [], scores: { blue: 0, orange: 0 } });
+    setState({ screen: 'settings', cards: [], flippedIndexes: [], scores: { blue: 0, orange: 0 } });
     render();
   });
 }

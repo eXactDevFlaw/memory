@@ -46,7 +46,7 @@ function renderRadioOption<T extends string | number>(
       <label class="settings__radio-label">
         <input type="radio" name="${name}" value="${option.value}" class="settings__radio-input" ${checked}>
         <span class="settings__radio-custom"></span>
-        ${option.label}
+        <span class="settings__radio-text">${option.label}</span>
         <span class="settings__radio-flourish" aria-hidden="true"></span>
       </label>
     </li>
@@ -254,6 +254,25 @@ function bindThemeInputs(): void {
   });
 }
 
+/** Wires up hover previews on the theme options, restoring the selected theme's preview on mouse-out. */
+function bindThemeHoverPreview(): void {
+  const preview = document.getElementById('settings-preview');
+  if (!preview) return;
+
+  document.querySelectorAll<HTMLInputElement>('input[name="theme"]').forEach(input => {
+    const text = input.closest('label')?.querySelector('.settings__radio-text');
+    if (!text) return;
+
+    text.addEventListener('mouseenter', () => {
+      preview.innerHTML = getThemePreviewHtml(input.value as ThemeName);
+    });
+    text.addEventListener('mouseleave', () => {
+      const { settings } = getState();
+      preview.innerHTML = settings.theme ? getThemePreviewHtml(settings.theme) : '';
+    });
+  });
+}
+
 /** Wires up the player radio inputs. */
 function bindPlayerInputs(): void {
   document.querySelectorAll<HTMLInputElement>('input[name="player"]').forEach(input => {
@@ -291,6 +310,7 @@ function bindStartButton(): void {
 /** Attaches event listeners for the settings screen. */
 export function initSettings(): void {
   bindThemeInputs();
+  bindThemeHoverPreview();
   bindPlayerInputs();
   bindBoardSizeInputs();
   bindStartButton();
