@@ -9,8 +9,9 @@
 
   &__bg-controller {
     position: absolute;
-    bottom: -60px;
-    left: -60px;
+    bottom: 0;
+    left: 0;
+    translate: -12% 12%;
     width: 500px;
     height: 500px;
     color: rgba(255, 255, 255, 0.04);

@@ -3,7 +3,7 @@
   background: #ffffff;
 
   &__inner {
-    max-width: 1440px;
+    max-width: var(--content-max-width);
     margin-inline: auto;
     width: 100%;
     padding: 48px 64px 0;
@@ -23,7 +23,7 @@
     &::before {
       content: '';
       position: absolute;
-      bottom: -8px;
+      top: calc(100% + 2px);
       left: 0;
       width: 10px;
       height: 10px;
@@ -34,7 +34,7 @@
     &::after {
       content: '';
       position: absolute;
-      bottom: -5px;
+      top: calc(100% + 1px);
       left: 14px;
       width: 100px;
       height: 4px;
