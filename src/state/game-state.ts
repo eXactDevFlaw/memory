@@ -31,16 +31,3 @@ export function getState(): GameState {
 export function setState(partial: Partial<GameState>): void {
   state = { ...state, ...partial };
 }
-
-/** Resets the entire state back to the initial home screen. */
-export function resetToHome(): void {
-  state = {
-    screen: 'home',
-    settings: { ...DEFAULT_SETTINGS },
-    currentPlayer: 'blue',
-    scores: { blue: 0, orange: 0 },
-    cards: [],
-    flippedIndexes: [],
-    isLocked: false,
-  };
-}

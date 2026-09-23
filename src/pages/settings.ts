@@ -7,8 +7,7 @@ const ICON_THEME_PATH     = `${import.meta.env.BASE_URL}ui/icon-theme.svg`;
 const ICON_PLAYER_PATH    = `${import.meta.env.BASE_URL}ui/icon-player.svg`;
 const ICON_BOARDSIZE_PATH = `${import.meta.env.BASE_URL}ui/icon-boardsize.svg`;
 
-const START_BTN_ACTIVE_PATH   = `${import.meta.env.BASE_URL}ui/play-btn-active.svg`;
-const START_BTN_DISABLED_PATH = `${import.meta.env.BASE_URL}ui/play-btn-disabled.svg`;
+const START_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-play.svg`;
 
 const THEME_OPTIONS: { value: ThemeName; label: string }[] = [
   { value: 'code-vibes',  label: 'Code vibes theme' },
@@ -195,7 +194,8 @@ function renderBar(settings: GameSettings): string {
     <div class="settings__bar">
       ${renderBarSteps(settings)}
       <button class="btn--start" id="settings-start-btn" aria-label="Start the game" ${canStart ? '' : 'disabled'}>
-        <img id="settings-start-icon" src="${canStart ? START_BTN_ACTIVE_PATH : START_BTN_DISABLED_PATH}" alt="" />
+        <span class="btn--start__icon" style="--mask-src:url('${START_ICON_PATH}')" aria-hidden="true"></span>
+        Start
       </button>
     </div>
   `;
@@ -233,15 +233,13 @@ function updatePreview(): void {
   const { settings } = getState();
   const preview   = document.getElementById('settings-preview');
   const startBtn  = document.getElementById('settings-start-btn') as HTMLButtonElement | null;
-  const startIcon = document.getElementById('settings-start-icon') as HTMLImageElement | null;
   const canStart  = isComplete(settings);
 
   if (preview) preview.innerHTML = settings.theme ? getThemePreviewHtml(settings.theme) : '';
   applyBarStep(document.getElementById('bar-theme'), settings.theme, 'Game theme', value => THEMES[value as ThemeName].name);
   applyBarStep(document.getElementById('bar-player'), settings.player, 'Player', value => value === 'blue' ? 'Blue Player' : 'Orange Player');
   applyBarStep(document.getElementById('bar-size'), settings.boardSize === null ? null : String(settings.boardSize), 'Board size', value => `Board-${value} Cards`);
-  if (startBtn)  startBtn.disabled = !canStart;
-  if (startIcon) startIcon.src = canStart ? START_BTN_ACTIVE_PATH : START_BTN_DISABLED_PATH;
+  if (startBtn) startBtn.disabled = !canStart;
 }
 
 /** Wires up the theme radio inputs. */

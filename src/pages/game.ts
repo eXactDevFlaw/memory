@@ -4,6 +4,7 @@ import { render } from '../main';
 import type { Card, CardIcon, PlayerColor, ThemeName, BoardSize } from '../types/index';
 
 const GRID_COLS: Record<number, number> = { 16: 4, 24: 6, 36: 6 };
+const CARD_SIZE_PX = 120;
 const SCORE_TAG_PATH = `${import.meta.env.BASE_URL}ui/label.svg`;
 const EXIT_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-exit.svg`;
 const MATCH_TO_GAMEOVER_DELAY_MS = 600;
@@ -77,11 +78,12 @@ function renderCurrentPlayerIndicator(currentPlayer: PlayerColor, textColor: str
  * Returns the exit-game button shown on the right of the score bar.
  * @param borderColor - The button's border color.
  * @param textColor - The button's text and icon color.
+ * @param hoverColor - The button's border/glow color on hover.
  * @returns HTML markup for the exit-game button.
  */
-function renderExitButton(borderColor: string, textColor: string): string {
+function renderExitButton(borderColor: string, textColor: string, hoverColor: string): string {
   return `
-    <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${borderColor};color:${textColor}">
+    <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${borderColor};color:${textColor};--exit-hover-color:${hoverColor}">
       <span class="scorebar__exit-icon" style="--mask-src:url('${EXIT_ICON_PATH}')" aria-hidden="true"></span>
       Exit game
     </button>
@@ -98,9 +100,9 @@ function renderExitButton(borderColor: string, textColor: string): string {
 function renderScorebar(scores: Record<PlayerColor, number>, currentPlayer: PlayerColor, theme: ThemeConfig): string {
   return `
     <header class="scorebar" style="background:${theme.scoreBarBg}">
-      ${renderScoresBox(scores, theme.exitBtnBorder)}
+      ${renderScoresBox(scores, theme.gameoverBackBtn.bg)}
       ${renderCurrentPlayerIndicator(currentPlayer, theme.textColor)}
-      ${renderExitButton(theme.exitBtnBorder, theme.textColor)}
+      ${renderExitButton(theme.exitBtnBorder, theme.textColor, theme.exitBtnHoverColor)}
     </header>
   `;
 }
@@ -192,7 +194,7 @@ function renderCard(card: Card, index: number, backIcon: string): string {
 function renderField(cards: Card[], cols: number, backIcon: string): string {
   const cardsHtml = cards.map((card, i) => renderCard(card, i, backIcon)).join('');
   return `
-    <section class="field" id="field" aria-label="Game board" style="grid-template-columns: repeat(${cols}, 1fr)">
+    <section class="field" id="field" aria-label="Game board" style="grid-template-columns: repeat(${cols}, ${CARD_SIZE_PX}px)">
       ${cardsHtml}
     </section>
   `;

@@ -13,7 +13,7 @@
   }
 
   &__title {
-    font-size: 3.375rem;
+    font-size: 54px;
     font-weight: 800;
     color: #1a1a1a;
     margin-bottom: 20px;
@@ -68,7 +68,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 1.5rem;
+    font-size: 24px;
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 4px;
@@ -92,7 +92,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 1.25rem;
+    font-size: 20px;
     font-weight: 500;
     color: #444;
     padding: 2px 0;
@@ -263,31 +263,54 @@
 
 .btn--start {
   display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border: none;
-  padding: 0;
-  background: none;
+  padding: 14px 24px;
+  background: #F0EA6E;
+  color: #303131;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
-  transition: opacity var(--transition), transform var(--transition);
+  transition: transform var(--transition), background var(--transition), color var(--transition);
 
-  img {
-    display: block;
+  &__icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask-image: var(--mask-src);
+    mask-image: var(--mask-src);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    transition: transform var(--transition);
   }
 
-  &:hover {
-    opacity: 0.88;
-    transform: translateY(-1px);
+  &:not(:disabled):hover {
+    transform: scale(1.08);
+
+    .btn--start__icon {
+      transform: rotate(-12deg);
+    }
   }
 
-  &:active {
-    transform: translateY(0);
+  &:not(:disabled):active {
+    transform: scale(1.02);
+
+    .btn--start__icon {
+      transform: rotate(-12deg);
+    }
   }
 
   &:disabled {
+    background: #DBDBD6;
+    color: #A3A1A1;
     cursor: not-allowed;
-
-    &:hover {
-      opacity: 1;
-      transform: none;
-    }
   }
 }

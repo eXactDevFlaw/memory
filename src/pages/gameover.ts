@@ -1,4 +1,4 @@
-import { getState, resetToHome } from '../state/game-state';
+import { getState, setState } from '../state/game-state';
 import { getTheme, type ThemeConfig } from '../data/themes';
 import { render } from '../main';
 import type { PlayerColor, ThemeName } from '../types/index';
@@ -227,7 +227,7 @@ export function renderGameover(): string {
 /** Attaches event listeners for the game-over screen. */
 export function initGameover(): void {
   document.getElementById('gameover-back-btn')?.addEventListener('click', () => {
-    resetToHome();
+    setState({ screen: 'settings', cards: [], flippedIndexes: [], scores: { blue: 0, orange: 0 } });
     render();
   });
 }
