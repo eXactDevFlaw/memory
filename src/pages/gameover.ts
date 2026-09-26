@@ -1,6 +1,7 @@
 import { getState, setState } from '../state/game-state';
 import { getTheme, type ThemeConfig } from '../data/themes';
 import { render } from '../main';
+import { renderScoresBox } from '../components/score-box';
 import type { PlayerColor, ThemeName } from '../types/index';
 
 /** The outcome of a finished game. */
@@ -9,7 +10,6 @@ type EndResult = 'blue-wins' | 'orange-wins' | 'draw';
 const CONFETTI_PATH = `${import.meta.env.BASE_URL}ui/Confetti.svg`;
 const PAWN_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-player.svg`;
 const SCALE_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-scale.svg`;
-const SCORE_TAG_PATH = `${import.meta.env.BASE_URL}ui/label.svg`;
 
 /**
  * Determines the end result based on the final scores.
@@ -32,42 +32,38 @@ function playerCssColor(player: PlayerColor): string {
 }
 
 /**
- * Returns a mask-colored icon span for an arbitrary SVG asset.
+ * Returns a mask-colored icon span for an arbitrary SVG asset, wrapped in a frame
+ * so themes can add filter effects (e.g. an outline) that the mask would otherwise clip.
  * @param src - The URL of the SVG used as the mask image.
  * @param color - The icon's fill color.
  * @param modifierClass - An additional BEM modifier class for sizing.
- * @returns HTML markup for the icon `<span>`.
+ * @returns HTML markup for the framed icon.
  */
 function renderMaskIcon(src: string, color: string, modifierClass: string): string {
-  return `<span class="gameover__icon ${modifierClass}" style="--mask-src:url('${src}'); color:${color}" aria-hidden="true"></span>`;
-}
-
-/**
- * Returns a mask-colored icon span for the final-score pill (no entrance animation).
- * @param src - The URL of the SVG used as the mask image.
- * @param color - The icon's fill color.
- * @param modifierClass - An additional BEM modifier class for sizing.
- * @returns HTML markup for the icon `<span>`.
- */
-function renderScoreIcon(src: string, color: string, modifierClass: string): string {
-  return `<span class="gameover__score-icon ${modifierClass}" style="--mask-src:url('${src}'); color:${color}" aria-hidden="true"></span>`;
+  return `
+    <span class="gameover__icon-frame" aria-hidden="true">
+      <span class="gameover__icon ${modifierClass}" style="--mask-src:url('${src}'); color:${color}"></span>
+    </span>
+  `;
 }
 
 /**
  * Returns the HTML content section for a winner result.
  * @param winner - The player who won.
- * @param textColor - The color for the "The winner is" label text.
+ * @param theme - The active theme's visual configuration.
  * @returns HTML markup for the winner reveal.
  */
-function renderWinnerContent(winner: PlayerColor, textColor: string): string {
+function renderWinnerContent(winner: PlayerColor, theme: ThemeConfig): string {
   const playerLabel = winner === 'blue' ? 'Blue Player' : 'Orange Player';
   const playerColor  = playerCssColor(winner);
+  const winnerVisual = theme.winnerImage
+    ? `<img class="gameover__winner-image" src="${theme.winnerImage}" alt="" aria-hidden="true" />`
+    : renderMaskIcon(PAWN_ICON_PATH, playerColor, 'gameover__icon--pawn');
   return `
-    <div class="gameover__result gameover__result--winner">
-      <img class="gameover__confetti" src="${CONFETTI_PATH}" alt="" aria-hidden="true" />
-      <p class="gameover__label" style="color:${textColor}">The winner is</p>
-      <strong class="gameover__winner-name" style="color:${playerColor}">${playerLabel}</strong>
-      ${renderMaskIcon(PAWN_ICON_PATH, playerColor, 'gameover__icon--pawn')}
+    <div class="gameover__result">
+      <p class="gameover__label" style="color:${theme.result?.labelColor ?? theme.gameoverTextColor}">The winner is</p>
+      <strong class="gameover__winner-name" style="color:${theme.winnerNameColor ?? playerColor}">${playerLabel}</strong>
+      ${winnerVisual}
     </div>
   `;
 }
@@ -95,72 +91,9 @@ function renderDrawContent(textColor: string, accentColor: string): string {
  * @returns HTML markup for the winner or draw reveal.
  */
 function renderResultContent(result: EndResult, theme: ThemeConfig): string {
-  if (result === 'blue-wins')   return renderWinnerContent('blue', theme.gameoverTextColor);
-  if (result === 'orange-wins') return renderWinnerContent('orange', theme.gameoverTextColor);
-  return renderDrawContent(theme.gameoverTextColor, theme.accentColor);
-}
-
-/**
- * Returns a "labeled" score entry: icon + player name + score, in one color.
- * @param player - The player this entry represents.
- * @param score - The player's final score.
- * @returns HTML markup for one score entry.
- */
-function renderLabeledScoreEntry(player: PlayerColor, score: number): string {
-  const playerColor = playerCssColor(player);
-  const label = player === 'blue' ? 'Blue' : 'Orange';
-  return `
-    <div class="gameover__score-entry" style="color:${playerColor}">
-      ${renderScoreIcon(SCORE_TAG_PATH, playerColor, 'gameover__score-icon--tag')}
-      ${label} ${score}
-    </div>
-  `;
-}
-
-/**
- * Returns a "compact" score entry: icon + score only, in one color.
- * @param player - The player this entry represents.
- * @param score - The player's final score.
- * @returns HTML markup for one score entry.
- */
-function renderCompactScoreEntry(player: PlayerColor, score: number): string {
-  const playerColor = playerCssColor(player);
-  return `
-    <div class="gameover__score-entry" style="color:${playerColor}">
-      ${renderScoreIcon(PAWN_ICON_PATH, playerColor, 'gameover__score-icon--pawn')}
-      ${score}
-    </div>
-  `;
-}
-
-/**
- * Returns the HTML for a single player's entry within the final-score pill.
- * @param player - The player this entry represents.
- * @param score - The player's final score.
- * @param theme - The active theme's visual configuration.
- * @returns HTML markup for one score entry, in the theme's layout style.
- */
-function renderScoreEntry(player: PlayerColor, score: number, theme: ThemeConfig): string {
-  return theme.scoreLayout === 'labeled'
-    ? renderLabeledScoreEntry(player, score)
-    : renderCompactScoreEntry(player, score);
-}
-
-/**
- * Returns the HTML for the final score display, themed per the current theme's score layout.
- * @param scores - The final score for each player.
- * @param theme - The active theme's visual configuration.
- * @returns HTML markup for the final-score pill.
- */
-function renderFinalScores(scores: Record<PlayerColor, number>, theme: ThemeConfig): string {
-  const entries = theme.scoreOrder
-    .map(player => renderScoreEntry(player, scores[player], theme))
-    .join('');
-  return `
-    <div class="gameover__scores gameover__scores--${theme.scoreLayout}" style="background:${theme.scorePillBg}">
-      ${entries}
-    </div>
-  `;
+  if (result === 'blue-wins')   return renderWinnerContent('blue', theme);
+  if (result === 'orange-wins') return renderWinnerContent('orange', theme);
+  return renderDrawContent(theme.result?.drawLabelColor ?? theme.gameoverTextColor, theme.accentColor);
 }
 
 /**
@@ -175,7 +108,7 @@ function renderTitle(theme: ThemeConfig): string {
 }
 
 /**
- * Returns the stage-1 section: title, final-score label and score pill.
+ * Returns the stage-1 section: title, final-score label and score box.
  * @param theme - The active theme's visual configuration.
  * @param scores - The final score for each player.
  * @returns HTML markup for the stage-1 `<section>`.
@@ -185,7 +118,7 @@ function renderStage1(theme: ThemeConfig, scores: Record<PlayerColor, number>): 
     <section class="gameover__stage1">
       ${renderTitle(theme)}
       <p class="gameover__final-label" style="color:${theme.gameoverTextColor}">Final score</p>
-      ${renderFinalScores(scores, theme)}
+      ${renderScoresBox(scores, theme.scoreBox)}
     </section>
   `;
 }
@@ -198,11 +131,12 @@ function renderStage1(theme: ThemeConfig, scores: Record<PlayerColor, number>): 
  */
 function renderStage2(result: EndResult, theme: ThemeConfig): string {
   const { bg, border, text } = theme.gameoverBackBtn;
-  const backBtnStyle = `background:${bg}; border:${border}; color:${text}`;
+  const backBtnStyle = `--back-bg:${bg}; --back-border:${border}; color:${text}; --back-hover-color:${theme.exitBtnHoverColor}`;
   return `
-    <section class="gameover__stage2" style="background:${theme.bgColor}">
+    <section class="gameover__stage2" style="background:${theme.result?.bg ?? theme.gameoverBg}">
+      ${result === 'draw' || !theme.winnerConfetti ? '' : `<img class="gameover__confetti" src="${CONFETTI_PATH}" alt="" aria-hidden="true" />`}
       ${renderResultContent(result, theme)}
-      <button class="btn btn--back" id="gameover-back-btn" style="${backBtnStyle}">Back to start</button>
+      <button class="btn btn--back" id="gameover-back-btn" style="${backBtnStyle}">${theme.gameoverBackBtn.label}</button>
     </section>
   `;
 }
@@ -217,7 +151,7 @@ export function renderGameover(): string {
   const result = getResult();
 
   return `
-    <main class="gameover" style="background:${theme.bgColor}">
+    <main class="gameover" data-theme="${state.settings.theme}" style="background:${theme.gameoverBg}">
       ${renderStage1(theme, state.scores)}
       ${renderStage2(result, theme)}
     </main>

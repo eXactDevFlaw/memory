@@ -1,11 +1,11 @@
 import { getState, setState } from '../state/game-state';
-import { getTheme, type ThemeConfig } from '../data/themes';
+import { getTheme, type ThemeConfig, type ThemeModalConfig } from '../data/themes';
 import { render } from '../main';
+import { renderCurrentPlayerMarker, renderScoresBox } from '../components/score-box';
 import type { Card, CardIcon, PlayerColor, ThemeName, BoardSize } from '../types/index';
 
-const GRID_COLS: Record<number, number> = { 16: 4, 24: 6, 36: 6 };
-const CARD_SIZE_PX = 120;
-const SCORE_TAG_PATH = `${import.meta.env.BASE_URL}ui/label.svg`;
+/** Grid columns per board size; card size and gaps live in CSS so themes can override them. */
+const GRID_COLS: Record<BoardSize, number> = { 16: 4, 24: 6, 36: 6 };
 const EXIT_ICON_PATH = `${import.meta.env.BASE_URL}ui/icon-exit.svg`;
 const MATCH_TO_GAMEOVER_DELAY_MS = 600;
 const MISMATCH_FLIP_BACK_DELAY_MS = 1000;
@@ -20,70 +20,29 @@ function nextPlayer(current: PlayerColor): PlayerColor {
 }
 
 /**
- * Returns the mask-colored tag icon used next to player scores.
- * @param player - The player the tag's color should match.
- * @returns HTML markup for the tag icon `<span>`.
- */
-function renderScoreTag(player: PlayerColor): string {
-  return `<span class="scorebar__tag scorebar__tag--${player}" style="--mask-src:url('${SCORE_TAG_PATH}')" aria-hidden="true"></span>`;
-}
-
-/**
- * Returns a single player's score entry (colored tag + colored label) for the shared score box.
- * @param player - The player this entry represents.
- * @param label - The player's display name.
- * @param score - The player's current score.
- * @returns HTML markup for one score entry.
- */
-function renderScoreEntry(player: PlayerColor, label: string, score: number): string {
-  return `
-    <div class="scorebar__score-entry">
-      ${renderScoreTag(player)}
-      <span class="scorebar__score-text scorebar__score-text--${player}">${label} ${score}</span>
-    </div>
-  `;
-}
-
-/**
- * Returns the shared blue/orange score box.
- * @param scores - The current score for each player.
- * @param bg - The background color for the score box.
- * @returns HTML markup for the score box.
- */
-function renderScoresBox(scores: Record<PlayerColor, number>, bg: string): string {
-  return `
-    <div class="scorebar__scores" style="background:${bg}">
-      ${renderScoreEntry('blue', 'Blue', scores.blue)}
-      ${renderScoreEntry('orange', 'Orange', scores.orange)}
-    </div>
-  `;
-}
-
-/**
  * Returns the current-player indicator shown between the two score boxes.
  * @param currentPlayer - The player whose turn it currently is.
- * @param textColor - The color for the "Current player" label text.
+ * @param theme - The active theme's visual configuration.
  * @returns HTML markup for the current-player indicator.
  */
-function renderCurrentPlayerIndicator(currentPlayer: PlayerColor, textColor: string): string {
+function renderCurrentPlayerIndicator(currentPlayer: PlayerColor, theme: ThemeConfig): string {
   return `
-    <p class="scorebar__current" style="color:${textColor}">
+    <p class="scorebar__current" style="color:${theme.textColor}">
       Current player:
-      ${renderScoreTag(currentPlayer)}
+      ${renderCurrentPlayerMarker(currentPlayer, theme.scoreBox.layout)}
     </p>
   `;
 }
 
 /**
  * Returns the exit-game button shown on the right of the score bar.
- * @param borderColor - The button's border color.
- * @param textColor - The button's text and icon color.
- * @param hoverColor - The button's border/glow color on hover.
+ * @param theme - The active theme's visual configuration.
  * @returns HTML markup for the exit-game button.
  */
-function renderExitButton(borderColor: string, textColor: string, hoverColor: string): string {
+function renderExitButton(theme: ThemeConfig): string {
+  const { bg, border, text = theme.textColor } = theme.exitBtn;
   return `
-    <button class="scorebar__exit-btn" id="exit-game-btn" style="border-color:${borderColor};color:${textColor};--exit-hover-color:${hoverColor}">
+    <button class="scorebar__exit-btn" id="exit-game-btn" style="--exit-bg:${bg};--exit-border:${border};color:${text};--exit-hover-color:${theme.exitBtnHoverColor}">
       <span class="scorebar__exit-icon" style="--mask-src:url('${EXIT_ICON_PATH}')" aria-hidden="true"></span>
       Exit game
     </button>
@@ -100,9 +59,9 @@ function renderExitButton(borderColor: string, textColor: string, hoverColor: st
 function renderScorebar(scores: Record<PlayerColor, number>, currentPlayer: PlayerColor, theme: ThemeConfig): string {
   return `
     <header class="scorebar" style="background:${theme.scoreBarBg}">
-      ${renderScoresBox(scores, theme.gameoverBackBtn.bg)}
-      ${renderCurrentPlayerIndicator(currentPlayer, theme.textColor)}
-      ${renderExitButton(theme.exitBtnBorder, theme.textColor, theme.exitBtnHoverColor)}
+      ${renderScoresBox(scores, theme.scoreBox)}
+      ${renderCurrentPlayerIndicator(currentPlayer, theme)}
+      ${renderExitButton(theme)}
     </header>
   `;
 }
@@ -185,17 +144,22 @@ function renderCard(card: Card, index: number, backIcon: string): string {
 }
 
 /**
- * Returns the HTML for the card grid.
+ * Returns the HTML for the card grid. The grid's CSS shrinks the cards below their
+ * max size when the board would otherwise overflow the available width or height.
  * @param cards - The full list of cards on the board.
- * @param cols - The number of grid columns to lay the cards out in.
+ * @param boardSize - The number of cards on the board.
  * @param backIcon - The URL of the theme's card-back image.
  * @returns HTML markup for the card grid `<section>`.
  */
-function renderField(cards: Card[], cols: number, backIcon: string): string {
+function renderField(cards: Card[], boardSize: BoardSize, backIcon: string): string {
   const cardsHtml = cards.map((card, i) => renderCard(card, i, backIcon)).join('');
+  const cols = GRID_COLS[boardSize];
+  const rows = Math.ceil(cards.length / cols);
   return `
-    <section class="field" id="field" aria-label="Game board" style="grid-template-columns: repeat(${cols}, ${CARD_SIZE_PX}px)">
-      ${cardsHtml}
+    <section class="field" id="field" aria-label="Game board">
+      <div class="field__grid" data-size="${boardSize}" style="--cols:${cols}; --rows:${rows}">
+        ${cardsHtml}
+      </div>
     </section>
   `;
 }
@@ -205,24 +169,26 @@ function renderField(cards: Card[], cols: number, backIcon: string): string {
  * @param bg - Background color.
  * @param border - Border shorthand.
  * @param color - Text color.
- * @param shadow - Box-shadow shorthand.
+ * @param shadow - Box-shadow shorthand for the resting state.
+ * @param hoverColor - Glow color on hover.
  * @returns A CSS declaration string for the `style` attribute.
  */
-function modalButtonStyle(bg: string, border: string, color: string, shadow: string): string {
-  return `background:${bg}; border:${border}; color:${color}; box-shadow:${shadow}`;
+function modalButtonStyle(bg: string, border: string, color: string, shadow: string, hoverColor: string): string {
+  return `background:${bg}; border:${border}; color:${color}; --modal-btn-shadow:${shadow}; --modal-btn-hover:${hoverColor}`;
 }
 
 /**
  * Returns the HTML for the exit-modal's back/exit action buttons.
- * @param backStyle - The `style` value for the "Back to game" button.
- * @param exitStyle - The `style` value for the "Exit game" button.
+ * @param modal - The theme's modal configuration (labels).
+ * @param backStyle - The `style` value for the back-to-game button.
+ * @param exitStyle - The `style` value for the quit button.
  * @returns HTML markup for the modal's actions.
  */
-function renderModalActions(backStyle: string, exitStyle: string): string {
+function renderModalActions(modal: ThemeModalConfig, backStyle: string, exitStyle: string): string {
   return `
     <div class="modal__actions">
-      <button class="btn btn--secondary" id="modal-back-btn" style="${backStyle}">Back to game</button>
-      <button class="btn btn--danger"    id="modal-exit-btn" style="${exitStyle}">Exit game</button>
+      <button class="modal__btn modal__btn--back" id="modal-back-btn" style="${backStyle}">${modal.backLabel}</button>
+      <button class="modal__btn" id="modal-exit-btn" style="${exitStyle}">${modal.exitLabel}</button>
     </div>
   `;
 }
@@ -234,28 +200,29 @@ function renderModalActions(backStyle: string, exitStyle: string): string {
  */
 function renderExitModal(theme: ThemeConfig): string {
   const { modal } = theme;
-  const backStyle = modalButtonStyle(modal.backBg, modal.backBorder, modal.backText, modal.backShadow);
-  const exitStyle = modalButtonStyle(modal.exitBg, modal.exitBorder, modal.exitText, modal.exitShadow);
+  const hover = theme.exitBtnHoverColor;
+  const backStyle = modalButtonStyle(modal.backBg, modal.backBorder, modal.backText, modal.backShadow, hover);
+  const exitStyle = modalButtonStyle(modal.exitBg, modal.exitBorder, modal.exitText, modal.exitShadow, hover);
   return `
-    <div class="modal" id="exit-modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading" hidden>
+    <div class="modal modal--from-${modal.enterFrom}" id="exit-modal" data-animate-close="${modal.animateClose}" role="dialog" aria-modal="true" aria-labelledby="modal-heading" hidden>
       <div class="modal__box" style="background:${modal.boxBg}">
         <p class="modal__text" id="modal-heading" style="color:${modal.headingColor}">Are you sure you want to quit the game?</p>
-        ${renderModalActions(backStyle, exitStyle)}
+        ${renderModalActions(modal, backStyle, exitStyle)}
       </div>
     </div>
   `;
 }
 
 /**
- * Resolves the confirmed settings into the active theme, board size, and grid column count.
- * @returns The active theme key, its visual configuration, the board size, and grid columns.
+ * Resolves the confirmed settings into the active theme and board size.
+ * @returns The active theme key, its visual configuration, and the board size.
  */
-function resolveGameSetup(): { themeKey: ThemeName; theme: ThemeConfig; boardSize: BoardSize; cols: number } {
+function resolveGameSetup(): { themeKey: ThemeName; theme: ThemeConfig; boardSize: BoardSize } {
   const { settings } = getState();
   const themeKey  = settings.theme as ThemeName;
   const boardSize = settings.boardSize as BoardSize;
   const theme     = getTheme(themeKey);
-  return { themeKey, theme, boardSize, cols: GRID_COLS[boardSize] };
+  return { themeKey, theme, boardSize };
 }
 
 /**
@@ -263,14 +230,14 @@ function resolveGameSetup(): { themeKey: ThemeName; theme: ThemeConfig; boardSiz
  * @returns HTML markup for the `<main>` game screen element.
  */
 export function renderGame(): string {
-  const { themeKey, theme, boardSize, cols } = resolveGameSetup();
+  const { themeKey, theme, boardSize } = resolveGameSetup();
   ensureCards(boardSize, theme);
   const { cards, scores, currentPlayer } = getState();
   return `
     <main class="game" data-theme="${themeKey}" style="background:${theme.bgColor}">
       <h1 class="visually-hidden">Memory game board</h1>
       ${renderScorebar(scores, currentPlayer, theme)}
-      ${renderField(cards, cols, theme.backIcon)}
+      ${renderField(cards, boardSize, theme.backIcon)}
       ${renderExitModal(theme)}
     </main>
   `;
@@ -289,17 +256,16 @@ function updateCardEl(index: number, card: Card): void {
   if (card.isMatched) el.disabled = true;
 }
 
-/** Refreshes the scorebar text and current-player indicator in the DOM. */
+/** Re-renders the scorebar's score box and current-player marker in the DOM for the active theme. */
 function updateScorebar(): void {
-  const state    = getState();
-  const blueEl   = document.querySelector('.scorebar__score-text--blue');
-  const orangeEl = document.querySelector('.scorebar__score-text--orange');
-  const curEl    = document.querySelector('.scorebar__current');
+  const state = getState();
+  const theme = getTheme(state.settings.theme as ThemeName);
+  const boxEl = document.querySelector('.scorebar .score-box');
+  const curEl = document.querySelector('.scorebar__current');
 
-  if (blueEl)   blueEl.textContent   = `Blue ${state.scores.blue}`;
-  if (orangeEl) orangeEl.textContent = `Orange ${state.scores.orange}`;
+  if (boxEl) boxEl.outerHTML = renderScoresBox(state.scores, theme.scoreBox);
   if (curEl) {
-    curEl.innerHTML = `Current player: ${renderScoreTag(state.currentPlayer)}`;
+    curEl.innerHTML = `Current player: ${renderCurrentPlayerMarker(state.currentPlayer, theme.scoreBox.layout)}`;
   }
 }
 
@@ -384,6 +350,22 @@ function flipCard(index: number): void {
 }
 
 /**
+ * Hides the exit-confirmation modal, sliding it out first if the theme animates the close.
+ * @param modal - The modal's root element.
+ */
+function closeExitModal(modal: HTMLElement): void {
+  if (modal.dataset.animateClose !== 'true') {
+    modal.hidden = true;
+    return;
+  }
+  modal.classList.add('is-closing');
+  modal.addEventListener('animationend', () => {
+    modal.classList.remove('is-closing');
+    modal.hidden = true;
+  }, { once: true });
+}
+
+/**
  * Wires up the exit-confirmation modal's open/close/confirm buttons.
  * @param modal - The modal's root element.
  */
@@ -392,7 +374,7 @@ function bindExitModal(modal: HTMLElement): void {
     modal.hidden = false;
   });
   document.getElementById('modal-back-btn')?.addEventListener('click', () => {
-    modal.hidden = true;
+    closeExitModal(modal);
   });
   document.getElementById('modal-exit-btn')?.addEventListener('click', () => {
     setState({ screen: 'settings', cards: [], flippedIndexes: [], scores: { blue: 0, orange: 0 } });

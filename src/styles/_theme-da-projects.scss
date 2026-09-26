@@ -1,0 +1,135 @@
+// DA Projects theme overrides, measured from the Figma "DA_Projects_theme" frames (1440px wide).
+
+$da-outline: 4px;
+
+.game[data-theme="da-projects"],
+.gameover[data-theme="da-projects"] {
+  --color-blue: #2E80C7;
+  --color-orange: #E16800;
+  font-family: 'Figtree', var(--font-headline);
+
+  button,
+  .score-box {
+    font-family: inherit;
+  }
+
+  .score-box__entry {
+    gap: 4px;
+  }
+
+  .score-box__text {
+    font-weight: 700;
+  }
+}
+
+.game[data-theme="da-projects"] {
+  .score-box__pawn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .score-box__text {
+    font-size: 1.5rem;
+  }
+
+  .scorebar {
+    padding: 24px;
+    border-radius: 10px;
+  }
+
+  .scorebar__current {
+    font-weight: 700;
+  }
+
+  .player-tile {
+    border-radius: 6px;
+  }
+
+  .scorebar__exit-btn {
+    height: 54px;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .scorebar__exit-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  // Card back is 120x100 with a 13px radius (public/icons/da-projects/back.svg).
+  .field__grid {
+    --card-max: 100px;
+    --card-ratio: 1.2;
+
+    &[data-size="24"],
+    &[data-size="36"] {
+      --gap: 8px;
+    }
+  }
+
+  .card__face {
+    border-radius: 13px;
+  }
+
+  .modal__box {
+    width: min(455px, 90%);
+    padding: 40px 56px;
+    border-radius: 20px;
+  }
+
+  .modal__text {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .modal__btn {
+    height: 43px;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+
+    &--back {
+      width: auto;
+    }
+  }
+
+  #modal-exit-btn {
+    width: 114px;
+  }
+}
+
+.gameover[data-theme="da-projects"] {
+  .gameover__title,
+  .gameover__draw-text {
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  .gameover__result {
+    --color-orange: #ED8D2D;
+  }
+
+  .gameover__winner-name {
+    font-weight: 700;
+    text-transform: none;
+  }
+
+  // White outline around the pawn / scale icon.
+  .gameover__icon-frame {
+    filter:
+      drop-shadow($da-outline 0 0 #ffffff)
+      drop-shadow(-$da-outline 0 0 #ffffff)
+      drop-shadow(0 $da-outline 0 #ffffff)
+      drop-shadow(0 (-$da-outline) 0 #ffffff);
+  }
+
+  .btn--back {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+}

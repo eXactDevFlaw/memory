@@ -5,7 +5,7 @@ import { gaming } from './gaming';
 import { daProjects } from './da-projects';
 import { food } from './food';
 
-export type { ThemeConfig, ThemeModalConfig, ThemeGameoverBackBtnConfig } from './types';
+export type { ThemeConfig, ThemeModalConfig, ThemeGameoverBackBtnConfig, ThemeExitBtnConfig, ThemeScoreBoxConfig, ThemeResultConfig } from './types';
 
 export const THEMES: Record<ThemeName, ThemeConfig> = {
   'code-vibes': codeVibes,

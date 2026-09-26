@@ -1,30 +1,61 @@
-import type { CardIcon, PlayerColor } from '../../types/index';
+import type { CardIcon } from '../../types/index';
 
-/** Per-theme colors and sizing for the in-game exit-confirmation modal. */
+/** Per-theme colors, labels and motion for the in-game exit-confirmation modal. */
 export interface ThemeModalConfig {
   boxBg: string;
   headingColor: string;
+  backLabel: string;
   backBg: string;
   backBorder: string;
   backText: string;
   backShadow: string;
+  exitLabel: string;
   exitBg: string;
   exitBorder: string;
   exitText: string;
   exitShadow: string;
+  /** Edge the dialog box slides in from when opened, or `fade` to only fade it in (Figma "Dissolve"). */
+  enterFrom: 'top' | 'bottom' | 'fade';
+  /** Whether "back to game" animates the dialog out (true) or closes it instantly (false). */
+  animateClose: boolean;
 }
 
 /**
- * Per-theme colors for the game-over screen's "Back to start" button.
- * `bg` is also reused for the live scorebar's score-entry box background (confirmed
- * identical to `bg` for `code-vibes` via Figma dev mode).
- * Only the `code-vibes` theme's values come from an exact Figma spec so far;
- * the other three themes currently use placeholders derived from their `accentColor`.
+ * Per-theme label and colors for the game-over screen's back button.
+ * `code-vibes` and `gaming` come from Figma; the other themes use placeholders derived from their `accentColor`.
  */
 export interface ThemeGameoverBackBtnConfig {
+  label: string;
   bg: string;
   border: string;
   text: string;
+}
+
+/** Per-theme colors for the scorebar's "Exit game" button. */
+export interface ThemeExitBtnConfig {
+  bg: string;
+  border: string;
+  /** Text and icon color; falls back to the theme's `textColor`. */
+  text?: string;
+}
+
+/**
+ * Colors for the game-over result reveal (winner / draw), for themes where it
+ * differs from the "Game over" title screen. Each falls back to `gameoverBg` / `gameoverTextColor`.
+ */
+export interface ThemeResultConfig {
+  bg: string;
+  labelColor: string;
+  drawLabelColor: string;
+}
+
+/**
+ * Per-theme look of the blue/orange score box on the game and game-over screens.
+ * `labeled` shows tag + "Blue 3"; `compact` shows pawn + "3" with orange first.
+ */
+export interface ThemeScoreBoxConfig {
+  layout: 'labeled' | 'compact';
+  bg: string;
 }
 
 /** A game theme's full visual configuration. */
@@ -35,18 +66,23 @@ export interface ThemeConfig {
   textColor: string;
   accentColor: string;
   scoreBarBg: string;
-  exitBtnBorder: string;
-  /** Border/glow color on hover. Confirmed via Figma for `code-vibes`; other themes use `accentColor` as a placeholder. */
+  /** Border/glow color on hover for the exit and game-over back buttons. Confirmed via Figma for `code-vibes`; other themes use `accentColor` as a placeholder. */
   exitBtnHoverColor: string;
+  exitBtn: ThemeExitBtnConfig;
+  scoreBox: ThemeScoreBoxConfig;
   gameoverBg: string;
   gameoverTextColor: string;
   titleFont: string;
   titleWeight: number;
   titleColor: string;
   titleUppercase: boolean;
-  scoreLayout: 'labeled' | 'compact';
-  scoreOrder: [PlayerColor, PlayerColor];
-  scorePillBg: string;
+  /** Whether the winner reveal shows the confetti banner. */
+  winnerConfetti: boolean;
+  /** Image shown under the winner's name; falls back to a pawn in the winner's color. */
+  winnerImage?: string;
+  /** Color of the winner's name; falls back to the winner's player color. */
+  winnerNameColor?: string;
+  result?: ThemeResultConfig;
   backIcon: string;
   previewImage: string;
   icons: CardIcon[];

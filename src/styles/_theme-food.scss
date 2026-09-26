@@ -1,0 +1,139 @@
+// Food theme overrides, measured from the Figma "Food_theme" frames (1440px wide).
+
+.game[data-theme="food"],
+.gameover[data-theme="food"] {
+  --color-blue: #2E80C7;
+  --color-orange: #E16800;
+  font-family: 'Klee One', var(--font-headline);
+
+  button,
+  .score-box {
+    font-family: inherit;
+  }
+
+  .score-box__entry {
+    gap: 4px;
+  }
+
+  .score-box__text {
+    font-weight: 600;
+  }
+}
+
+.game[data-theme="food"] {
+  .score-box__pawn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .score-box__text {
+    font-size: 1.5rem;
+  }
+
+  .scorebar {
+    padding: 24px;
+    border-radius: 10px;
+  }
+
+  .scorebar__current {
+    font-weight: 400;
+  }
+
+  .player-tile {
+    border-radius: 6px;
+  }
+
+  .scorebar__exit-btn {
+    height: 46px;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  // Cards are square with sharp corners (public/icons/food/back.svg); only the tighter gaps differ.
+  .field__grid {
+    &[data-size="24"],
+    &[data-size="36"] {
+      --gap: 8px;
+    }
+  }
+
+  // Box hugs the button row; the heading wraps to that width.
+  .modal__box {
+    width: min-content;
+    border-radius: 20px;
+  }
+
+  .modal__text {
+    font-size: 1.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .modal__btn {
+    height: 46px;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    &--back {
+      width: auto;
+    }
+  }
+}
+
+.gameover[data-theme="food"] {
+  .gameover__title {
+    text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .gameover__result {
+    --color-orange: #ED8D2D;
+  }
+
+  .gameover__winner-name {
+    font-weight: 400;
+    text-transform: none;
+  }
+
+  .gameover__draw-text {
+    font-weight: 400;
+  }
+
+  // Pawn / scale sit on a beige tile with a drop shadow.
+  .gameover__icon-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 260px;
+    height: 300px;
+    background: #F5E6D4;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+
+    &:has(.gameover__icon--scale) {
+      width: 312px;
+      height: 287px;
+    }
+  }
+
+  .gameover__icon {
+    flex-shrink: 0;
+
+    &--scale {
+      width: 273px;
+      height: 219px;
+    }
+  }
+
+  .btn--back {
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+  }
+}

@@ -1,0 +1,105 @@
+.score-box {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 17px 20px;
+  font-family: var(--font-headline);
+
+  &__entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__text {
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    &--blue   { color: var(--color-blue); }
+    &--orange { color: var(--color-orange); }
+  }
+
+  &__pawn {
+    display: block;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    -webkit-mask: var(--mask-src) center / contain no-repeat;
+    mask: var(--mask-src) center / contain no-repeat;
+
+    &--blue   { background-color: var(--color-blue); }
+    &--orange { background-color: var(--color-orange); }
+  }
+
+  &--compact {
+    height: 54px;
+    gap: 40px;
+    padding: 0 16px;
+    border-radius: 10px;
+
+    .score-box__entry {
+      gap: 0;
+    }
+
+    .score-box__text {
+      font-size: 2rem;
+      font-weight: 500;
+      line-height: 1;
+    }
+  }
+}
+
+// The final score box on the game-over screen is larger than the scorebar one (~220x74 in Figma).
+.gameover .score-box--compact {
+  height: 74px;
+  padding: 0 24px;
+  gap: 48px;
+
+  .score-box__pawn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .score-box__text {
+    font-size: 2rem;
+  }
+}
+
+.player-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 4px;
+
+  &--blue   { background-color: var(--color-blue); }
+  &--orange { background-color: var(--color-orange); }
+
+  &__pawn {
+    width: 28px;
+    height: 28px;
+    background-color: #ffffff;
+    -webkit-mask: var(--mask-src) center / contain no-repeat;
+    mask: var(--mask-src) center / contain no-repeat;
+  }
+}
+
+.player-tag {
+  display: block;
+  width: 16px;
+  height: 13px;
+  flex-shrink: 0;
+  -webkit-mask-image: var(--mask-src);
+  mask-image: var(--mask-src);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  &--blue   { background-color: var(--color-blue); }
+  &--orange { background-color: var(--color-orange); }
+}
